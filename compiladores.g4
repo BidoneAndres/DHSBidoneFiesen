@@ -11,6 +11,7 @@ LLA: '{';
 LLC: '}';
 PYC: ';';
 WHILE :'while';
+IF : 'if';
 NUMERO : DIGITO+ ;
 ASIG : '=' ;
 INT:'int';
@@ -20,7 +21,7 @@ RESTA : '-' ;
 MULT : '*' ;
 DIV : '/' ;
 MOD : '%' ;
-
+NOMBRE : LETRA+;
 
 
 WS : [ \t\n\r] -> skip;
@@ -57,7 +58,8 @@ iwhile : WHILE PA ID PC instruccion ;//llave representa una instruccion compuest
 
 bloque : LLA instrucciones LLC; 
 
-
+//Aca vamos a declarar las operaciones aritmeticas y logicas
+//-------------------------------------
 opal : exp ; //completar para nosotros
 
 exp : term e;
@@ -78,10 +80,17 @@ factor : NUMERO
        | ID
        | PA exp PC
       ;
-
+//--------------------------------------
 ifor : FOR PA init PYC cond PYC iter PC instruccion ;
 
-init :  ;
+//Usamos para inicializar la variable esta parte, esta tiene un nombre el cual esta detallado mas arriba 
+//---------------------------
+init :  INT NOMBRE val PYC;
+
+val : ASIG NUMERO
+    | 
+    ;
+//----------------------------
 
 cond : term condicionales
       (term | )
