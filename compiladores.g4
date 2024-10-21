@@ -5,25 +5,26 @@ fragment LETRA : [A-Za-z] ;
 fragment DIGITO : [0-9] ;
 
 //INST : (LETRA | DIGITO  | [- ,;{}()+=>] )+ '\n'; es una letra, un digito .. no quiero que exceda el guion 
-PA: '(' ;
-PC: ')' ;
+PA: '(';
+PC: ')';
 LLA: '{';
 LLC: '}';
 PYC: ';';
 WHILE :'while';
-IF : 'if';
 NUMERO : DIGITO+ ;
-ASIG : '=' ;
 INT:'int';
-FOR : 'for' ;
 SUMA : '+' ;
 RESTA : '-' ;
 MULT : '*' ;
 DIV : '/' ;
 MOD : '%' ;
-NOMBRE : LETRA+;
-
-
+ASIG : '=';
+EQQ: '==';
+NE: '!=';
+LT: '<';
+GT: '>';
+LE: '<=';
+GE: '>=';
 WS : [ \t\n\r] -> skip;
 ID : (LETRA | '_')(LETRA | DIGITO | '_')* ;
 OTRO : . ;
@@ -64,6 +65,8 @@ opal : exp ; //completar para nosotros
 
 exp : term e;
 
+operador: EQQ | NE | GT | LT | GE | LE;
+
 e : SUMA term e
     |RESTA term e
     ;
@@ -81,7 +84,17 @@ factor : NUMERO
        | PA exp PC
       ;
 //--------------------------------------
-ifor : FOR PA init PYC cond PYC iter PC instruccion ;
+ifor : 	FOR PA asignacion PYC oplo PYC asignacion PC instrucciones;
+oplo: expresion_logica;
+
+
+expresion_logica: ORR termino_logico expresion_logica |;
+
+termino_logico: factor_logico term_logico;
+term_logico: AND factor_logico term_logico |;
+
+factor_logico: oplo | comp | (PA expresion_logica PC);
+comp: oplo operador oplo | comp operador comp;
 
 //Usamos para inicializar la variable esta parte, esta tiene un nombre el cual esta detallado mas arriba 
 //---------------------------
