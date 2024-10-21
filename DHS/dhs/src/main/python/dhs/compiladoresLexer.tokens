@@ -1,0 +1,17 @@
+PA=1
+PC=2
+LLA=3
+LLC=4
+PYC=5
+WHILE=6
+NUMERO=7
+INT=8
+WS=9
+ID=10
+'('=1
+')'=2
+'{'=3
+'}'=4
+';'=5
+'while'=6
+'int'=8
