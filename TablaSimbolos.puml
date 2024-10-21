@@ -7,23 +7,26 @@ class TablaSimbolos{
     -List<Contexto> contextos
     +addContexto()
     +delContexto()
-    +addIdentificador()
-    +buscarLocal()
-    +buscarGlobal
+    +addIdentificador(ID)
+    +buscarLocal() : ID
+    +buscarGlobal() : ID
 }
 
 class Contexto{
     - Dict<String, ID> tabla
 }
 
-class ID<<abstract>>{
+abstract class ID<<abstract>>{
     -String nombre
     -Enum tipo
     -Boolean inicializado
     -Boolean usado
 }
 
-class Variable
+class Variable{
+
+}
+
 class Funcion{
     -List<ID> args
 }
@@ -32,4 +35,5 @@ TablaSimbolos --> Contexto
 Contexto-->ID
 ID <|-- Variable
 ID <|-- Funcion
+
 @enduml
