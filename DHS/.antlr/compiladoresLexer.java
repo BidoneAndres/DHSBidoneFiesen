@@ -1,4 +1,4 @@
-// Generated from /home/eduardo/DHS/DHSBidoneFiesen/DHS/src/main/python/dhs/compiladores.g4 by ANTLR 4.13.1
+// Generated from /home/eduardo/DHS/DHSBidoneFiesen/DHS/compiladores.g4 by ANTLR 4.13.1
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.Token;
