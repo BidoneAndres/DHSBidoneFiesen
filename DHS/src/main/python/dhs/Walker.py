@@ -7,7 +7,7 @@ class Walker (compiladoresVisitor) :
         print("=-"*20)
         print("--Comienza a caminar")
         tmp = super().visitPrograma(ctx)
-        print("Fin del REcorrido")
+        print("Fin del Recorrido")
         return tmp
     
     def visitDeclaracion(self, ctx):
@@ -16,7 +16,7 @@ class Walker (compiladoresVisitor) :
     
     def visitBloque(self, ctx:compiladoresParser.BloqueContext):
         print("Nuevo Programa")
-        return super().visitInstrucciones(ctx.getChild(1))
+        return super().visitIwhile(ctx.getChild(1))
 
     def visitTerminal(self, node):
         print(" ==> Token "+ node.getText())
