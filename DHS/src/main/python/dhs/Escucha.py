@@ -2,7 +2,12 @@ from antlr4.tree.Tree import ErrorNode, TerminalNode
 from compiladoresListener import compiladoresListener
 from compiladoresParser import compiladoresParser
 
+
+
 class Escucha(compiladoresListener) :
+    
+    archivo = open('./output/TablaSimbolos.txt', 'w')
+    errores = open('./output/Errores&Warnings.txt', 'w')
     
     numTokens = 0
     numNode = 0
