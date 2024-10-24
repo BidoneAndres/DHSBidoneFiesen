@@ -9,10 +9,25 @@ PC: ')';
 LLA: '{';
 LLC: '}';
 PYC: ';';
+COM : ',';
+
+
 WHILE :'while';
 NUMERO : DIGITO+ ;
 FOR : 'for';
+IF: 'if';
+
+
 INT:'int';
+DOUBLE : 'double';
+CHAR : 'char'; 
+FLOAT : 'float'; 
+STRING : 'String';
+BOOLEAN : 'boolean';
+VOID : 'void';
+
+
+
 SUMA : '+' ;
 RESTA : '-' ;
 MULT : '*' ;
@@ -25,13 +40,16 @@ LT: '<';
 GT: '>';
 LE: '<=';
 GE: '>=';
+
+
+
 WS : [ \t\n\r] -> skip;
 ID : (LETRA | '_')(LETRA | DIGITO | '_')* ;
 ORR : '||';
 AND : '&&';
 NOT : '!';
 OTRO : . ;
-NOMBRE : LETRA+;
+
 
 
 s : ID     {print("ID ->" + $ID.text + "<--") }         s
@@ -49,16 +67,14 @@ programa : instrucciones EOF ; //secuencia de instrucciones hasta el final del a
 instrucciones : instruccion instrucciones //es una instruccion con mas instrucciones 
                 |
                 ;
-instruccion: declaracion
+instruccion:  init
             | iwhile
             | bloque
             | asignacion
             ;
 operador: EQQ | NE | GT | LT | GE | LE;
 
-asignacion : ID ASIG opal PYC;
 
-declaracion: INT ID PYC ;
 
 iwhile : WHILE PA ID PC instruccion ;//llave representa una instruccion compuesta, despues del while viene siempre una instruccion
 
@@ -105,13 +121,25 @@ factor_logico: oplo | comp | (PA expresion_logica PC);
 
 comp: oplo operador oplo | comp operador comp;
 
-//Usamos para inicializar la variable esta parte, esta tiene un nombre el cual esta detallado mas arriba 
+//Usamos para inicializar la variable esta parte 
 //---------------------------
-init :  INT NOMBRE val PYC;
+init : TIP ID PYC;
 
-val : ASIG NUMERO
-    | 
-    ;
+TIP : INT //Aca declaro los tipos posibles de las variables, no estoy seguro si el string hace falta, y despues le tengo que preguntar al profe
+    | DOUBLE //si tambien entra los double int y los double float
+    | FLOAT 
+    | BOOLEAN
+    | CHAR
+    | STRING 
+    ; 
+
+//----------------------------
+
+//Usamos esta parte para la asignacion de un valor, tenemos en cuenta que este valor no solo puede ser ingresado de 
+//manera numerica, si no que tambien por una funcion aritmetica y logica o por otra variable
+//----------------------------
+
+asignacion : ID ASIG opal PYC; 
 //----------------------------
 
 cond : term condicionales
@@ -128,10 +156,16 @@ condicionales : '=='
 
 iter : ID exp;
 
+//Esta va a ser la parte donde estan las funciones, tanto los prototipos como las funciones en si....
+//------------------------------------
 
+proto : (TIP | VOID) PA var_func PC PYC; //Esta es la parte del prototipo, lo que vamos a hacer es encadenar con comas en var func
 
+func : (TIP | VOID) PA var_func PC bloque; //Y bueno esto es practicamente lo mismo, nada mas que termina con los bloques
 
-
-
+var_func : init var_func
+           |init COM var_func
+           |
+           ;
 
 

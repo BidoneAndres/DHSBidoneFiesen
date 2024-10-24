@@ -1,6 +1,6 @@
 import sys
 from antlr4 import *
-from compiladoresLexer  import compiladoresLexer
+from compiladoresLexer import compiladoresLexer
 from compiladoresParser import compiladoresParser
 from Escucha import Escucha
 from Walker import Walker

@@ -11,6 +11,9 @@ class Escucha(compiladoresListener) :
     
     numTokens = 0
     numNode = 0
+
+    # Vemos el comienzo del programa
+    # -----------------------------------------------------------
     def enterPrograma(self, ctx:compiladoresParser.ProgramaContext):
         print("Comienza la Compilacion")
 
@@ -20,17 +23,38 @@ class Escucha(compiladoresListener) :
         print("Se encontraron")
         print("\tNodos: "+str(self.numNode))
         print("\tTokens: "+str(self.numTokens))
-        
-    def enterIWhile(self, ctx:compiladoresParser.ProgramaContext):
+    # -----------------------------------------------------------
+
+
+
+    #Ecuchamos si viene un while entonces hacemos...
+    # -----------------------------------------------------------       
+    def enterIWhile(self, ctx:compiladoresParser.IwhileContext):
         print("Encontre WHILE")
         print("\tCantidad hijos: "+ctx.getChildCount)
         print("\tTOQUENS: "+ctx.getText)
 
-    def exitIWhile(self, ctx:compiladoresParser.ProgramaContext):
+    def exitIWhile(self, ctx:compiladoresParser.IwhileContext):
         print("Fin de WHILE")
         print("\tCantidad hijos: "+ctx.getChildCount)
         print("\tTOQUENS: "+ctx.getText)
-        
+    # -----------------------------------------------------------
+
+    #Para el caso de las operaciones aritmeticas o logicas tenemos...
+    # -----------------------------------------------------------
+    def enterOpal ( self, ctx:compiladoresParser.OpalContext):
+        print("Encontrer una operacion aritmetica o logica")
+        print("\tCantidad de hijos: "+ctx.getChildCount)
+        print("\tTOQUENS: "+ctx.getText)        
+
+    
+    def exitOpal(self, ctx:compiladoresParser.OpalContext):
+        print("Fin de la funcion aritmetica o logica")
+        print("\tCantidad hijos: "+ctx.getChildCount)
+        print("\tTOQUENS: "+ctx.getText)
+    # -----------------------------------------------------------
+
+
     def enterDeclaracion(self, ctx:compiladoresParser.ProgramaContext):
         print("### Declaracion")
 
