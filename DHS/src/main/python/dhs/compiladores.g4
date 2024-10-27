@@ -81,14 +81,13 @@ operador: EQQ | NE | GT | LT | GE | LE;
 
 
 
-iwhile : WHILE PA ID PC bloque ;//llave representa una instruccion compuesta, despues del while viene siempre una instruccion
+iwhile : WHILE PA opal PC instruccion;//llave representa una instruccion compuesta, despues del while viene siempre una instruccion
 
 //Aca vamos a declarar los if, lo que tenemos en cuenta es que nosotros no podemos definir un else sin tener un if
 //-------------------------------------------------
-if : IF PA PC bloque  else; 
+if : IF PA opal PC instruccion | IF PA opal PC instruccion else; 
 //Lo que tenemos en cuenta aca es que nosotros podemos anidar, pero solamente puede existir un else por cada if, pero else if los que queramos
-else : ELSE bloque
-    | ELSE if
+else : ELSE instruccion
     | 
     ;
 
@@ -101,8 +100,6 @@ bloque : LLA instrucciones LLC;
 opal : exp ; //completar para nosotros
 
 exp : term e;
-
-
 
 e : SUMA term e
     |RESTA term e
@@ -123,7 +120,8 @@ factor : NUMERO
        | PA exp PC
       ;
 //--------------------------------------
-ifor : 	FOR PA asignacion PYC oplo PYC asignacion PC instrucciones;
+
+ifor : 	FOR PA asignacion PYC oplo PYC asignacion PC instruccion;
 
 oplo: expresion_logica;
 
