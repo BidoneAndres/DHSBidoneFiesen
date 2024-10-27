@@ -1,3 +1,25 @@
-while(x) {
-    int miVariable;
+
+void funcion(int a, int b);
+
+int main(){
+    float a = 1 , b ;
+    int c;
+
+    b = a + 2;
+
+    if(){
+        c = b;
+    }else if (){
+
+    }else{
+        c = 0;
+    }
+
+    return 0;
+}
+
+void funcion(int a , int b ){
+    while(a){
+
+    }
 }
