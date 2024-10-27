@@ -16,7 +16,8 @@ WHILE :'while';
 NUMERO : DIGITO+ ;
 FOR : 'for';
 IF: 'if';
-
+ELSE : 'else';
+RETURN : 'return';
 
 INT:'int';
 DOUBLE : 'double';
@@ -67,16 +68,31 @@ programa : instrucciones EOF ; //secuencia de instrucciones hasta el final del a
 instrucciones : instruccion instrucciones //es una instruccion con mas instrucciones 
                 |
                 ;
-instruccion:  init
+instruccion:  init PYC
             | iwhile
             | bloque
             | asignacion
+            | proto PYC
+            | func
+            | if
+            | return PYC
             ;
 operador: EQQ | NE | GT | LT | GE | LE;
 
 
 
-iwhile : WHILE PA ID PC instruccion ;//llave representa una instruccion compuesta, despues del while viene siempre una instruccion
+iwhile : WHILE PA ID PC bloque ;//llave representa una instruccion compuesta, despues del while viene siempre una instruccion
+
+//Aca vamos a declarar los if, lo que tenemos en cuenta es que nosotros no podemos definir un else sin tener un if
+//-------------------------------------------------
+if : IF PA PC bloque  else; 
+//Lo que tenemos en cuenta aca es que nosotros podemos anidar, pero solamente puede existir un else por cada if, pero else if los que queramos
+else : ELSE bloque
+    | ELSE if
+    | 
+    ;
+
+//-------------------------------------------------
 
 bloque : LLA instrucciones LLC; 
 
@@ -90,6 +106,7 @@ exp : term e;
 
 e : SUMA term e
     |RESTA term e
+    |
     ;
 
 term : factor t ;
@@ -123,16 +140,26 @@ comp: oplo operador oplo | comp operador comp;
 
 //Usamos para inicializar la variable esta parte 
 //---------------------------
-init : TIP ID PYC;
-
-TIP : INT //Aca declaro los tipos posibles de las variables, no estoy seguro si el string hace falta, y despues le tengo que preguntar al profe
+init : (INT //Aca declaro los tipos posibles de las variables, no estoy seguro si el string hace falta, y despues le tengo que preguntar al profe
     | DOUBLE //si tambien entra los double int y los double float
     | FLOAT 
     | BOOLEAN
-    | CHAR
-    | STRING 
-    ; 
+    | CHAR) variable;
 
+//Esto lo que nos va a permitir es que podamos inicializar las variables que queramos, asi como asignarles el valor de inmediato
+variable : ID (ASIG opal|) variable
+            | COM ID (ASIG opal| ) variable
+            |
+            ;
+
+
+/*TIP : INT Preguntar al profe porque no anda si lo pongo con tip, me parece raro que de esta forma no se pueda y de esta si
+    | DOUBL
+    | FLOAT 
+    | BOOLEAN
+    | CHAR
+    ; 
+*/
 //----------------------------
 
 //Usamos esta parte para la asignacion de un valor, tenemos en cuenta que este valor no solo puede ser ingresado de 
@@ -159,12 +186,18 @@ iter : ID exp;
 //Esta va a ser la parte donde estan las funciones, tanto los prototipos como las funciones en si....
 //------------------------------------
 
-proto : (TIP | VOID) PA (var_func|) PC PYC; //Esta es la parte del prototipo, lo que vamos a hacer es encadenar con comas en var func
+//proto : (TIP | VOID) PA (var_func|) PC PYC; //Esta es la parte del prototipo, lo que vamos a hacer es encadenar con comas en var func
+proto : (INT //Aca declaro los tipos posibles de las variables, no estoy seguro si el string hace falta, y despues le tengo que preguntar al profe
+    | DOUBLE //si tambien entra los double int y los double float
+    | FLOAT 
+    | BOOLEAN
+    | CHAR | VOID) ID PA (var_func|) PC;
+//func : (TIP | VOID) PA (var_func|) PC bloque; //Y bueno esto es practicamente lo mismo, nada mas que termina con los bloques
 
-func : (TIP | VOID) PA (var_func|) PC bloque; //Y bueno esto es practicamente lo mismo, nada mas que termina con los bloques
+func: proto bloque;
 
 var_func : init
            |init COM var_func
            ;
 
-
+return : RETURN opal;

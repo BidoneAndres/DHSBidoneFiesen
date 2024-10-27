@@ -7,7 +7,7 @@ from Walker import Walker
 
 
 def main(argv):
-    archivo = "/home/eduardo/DHS/DHSBidoneFiesen/DHS/input/opal.txt"
+    archivo = "/home/andres/Documents/DHS/DHSBidoneFiesen/DHS/input/opal.txt"
     if len(argv) > 1 :
         archivo = argv[1]
     input = FileStream(archivo)
@@ -18,8 +18,8 @@ def main(argv):
     parser.addParseListener(escucha)
     tree = parser.programa()
     #print(tree.toStringTree(recog=parser))
-    caminante = Walker()
-    caminante.visitPrograma(tree)
+    #caminante = Walker()
+    #caminante.visitPrograma(tree)
 
 if __name__ == '__main__':
     main(sys.argv)

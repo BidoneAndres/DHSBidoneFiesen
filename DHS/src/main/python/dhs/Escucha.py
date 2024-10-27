@@ -6,8 +6,8 @@ from compiladoresParser import compiladoresParser
 
 class Escucha(compiladoresListener) :
     
-    archivo = open('./output/TablaSimbolos.txt', 'w')
-    errores = open('./output/Errores&Warnings.txt', 'w')
+    #archivo = open('./output/TablaSimbolos.txt', 'w')
+    #errores = open('./output/Errores&Warnings.txt', 'w')
     
     numTokens = 0
     numNode = 0
@@ -25,7 +25,14 @@ class Escucha(compiladoresListener) :
         print("\tTokens: "+str(self.numTokens))
     # -----------------------------------------------------------
 
-
+    #Cuando usamos un bloque, estoy probando con while 
+    # -----------------------------------------------------------
+    def enterBloque(self, ctx: compiladoresParser.BloqueContext):
+        print("---> Encontre un BLOQUE")
+        
+    def exitBloque(self, ctx: compiladoresParser.BloqueContext):
+        return super().exitBloque(ctx)
+    # -----------------------------------------------------------
 
     #Ecuchamos si viene un while entonces hacemos...
     # -----------------------------------------------------------       
@@ -72,6 +79,6 @@ class Escucha(compiladoresListener) :
     def enterEveryRule(self, ctx):
         self.numNode += 1
 
-    def enterFucion(self, ctx: compiladoresParser.FuncionContext):
+    def enterFucion(self, ctx: compiladoresParser.FuncContext):
         print("Se ingreso a una funcion...")
         
