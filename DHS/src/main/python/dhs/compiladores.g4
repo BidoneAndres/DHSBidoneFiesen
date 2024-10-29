@@ -81,13 +81,14 @@ operador: EQQ | NE | GT | LT | GE | LE;
 
 
 
-iwhile : WHILE PA opal PC instruccion;//llave representa una instruccion compuesta, despues del while viene siempre una instruccion
+iwhile : WHILE PA ID PC bloque ;//llave representa una instruccion compuesta, despues del while viene siempre una instruccion
 
 //Aca vamos a declarar los if, lo que tenemos en cuenta es que nosotros no podemos definir un else sin tener un if
 //-------------------------------------------------
-if : IF PA opal PC instruccion | IF PA opal PC instruccion else; 
+if : IF PA PC bloque  else; 
 //Lo que tenemos en cuenta aca es que nosotros podemos anidar, pero solamente puede existir un else por cada if, pero else if los que queramos
-else : ELSE instruccion
+else : ELSE bloque
+    | ELSE if
     | 
     ;
 
@@ -100,6 +101,8 @@ bloque : LLA instrucciones LLC;
 opal : exp ; //completar para nosotros
 
 exp : term e;
+
+
 
 e : SUMA term e
     |RESTA term e
@@ -120,8 +123,7 @@ factor : NUMERO
        | PA exp PC
       ;
 //--------------------------------------
-
-ifor : 	FOR PA asignacion PYC oplo PYC asignacion PC instruccion;
+ifor : 	FOR PA asignacion PYC oplo PYC asignacion PC instrucciones;
 
 oplo: expresion_logica;
 
@@ -142,14 +144,9 @@ init : (INT //Aca declaro los tipos posibles de las variables, no estoy seguro s
     | DOUBLE //si tambien entra los double int y los double float
     | FLOAT 
     | BOOLEAN
-    | CHAR) variable;
+    | CHAR) ID;
 
 //Esto lo que nos va a permitir es que podamos inicializar las variables que queramos, asi como asignarles el valor de inmediato
-variable : ID (ASIG opal|) variable
-            | COM ID (ASIG opal| ) variable
-            |
-            ;
-
 
 /*TIP : INT Preguntar al profe porque no anda si lo pongo con tip, me parece raro que de esta forma no se pueda y de esta si
     | DOUBL
@@ -192,10 +189,17 @@ proto : (INT //Aca declaro los tipos posibles de las variables, no estoy seguro 
     | CHAR | VOID) ID PA (var_func|) PC;
 //func : (TIP | VOID) PA (var_func|) PC bloque; //Y bueno esto es practicamente lo mismo, nada mas que termina con los bloques
 
-func: proto bloque;
+func: proto ID  bloque;
 
-var_func : init
-           |init COM var_func
-           ;
+var_func : (INT //Aca declaro los tipos posibles de las variables, no estoy seguro si el string hace falta, y despues le tengo que preguntar al profe
+        | DOUBLE //si tambien entra los double int y los double float
+        | FLOAT 
+        | BOOLEAN
+        | CHAR) ID (COM (INT //Aca declaro los tipos posibles de las variables, no estoy seguro si el string hace falta, y despues le tengo que preguntar al profe
+                        | DOUBLE //si tambien entra los double int y los double float
+                        | FLOAT 
+                        | BOOLEAN
+                        | CHAR) ID)*
+                        ;
 
 return : RETURN opal;
