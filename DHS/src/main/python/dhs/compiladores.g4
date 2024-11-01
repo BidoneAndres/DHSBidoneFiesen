@@ -42,16 +42,12 @@ GT: '>';
 LE: '<=';
 GE: '>=';
 
-
-
 WS : [ \t\n\r] -> skip;
 ID : (LETRA | '_')(LETRA | DIGITO | '_')* ;
 ORR : '||';
 AND : '&&';
 NOT : '!';
 OTRO : . ;
-
-
 
 s : ID     {print("ID ->" + $ID.text + "<--") }         s
   | NUMERO {print("NUMERO ->" + $NUMERO.text + "<--") } s
@@ -68,6 +64,7 @@ programa : instrucciones EOF ; //secuencia de instrucciones hasta el final del a
 instrucciones : instruccion instrucciones //es una instruccion con mas instrucciones 
                 |
                 ;
+
 instruccion:  init PYC
             | iwhile
             | bloque
@@ -76,16 +73,17 @@ instruccion:  init PYC
             | func
             | if
             | return PYC
+            | ifor
             ;
 operador: EQQ | NE | GT | LT | GE | LE;
-
-
 
 iwhile : WHILE PA ID PC bloque ;//llave representa una instruccion compuesta, despues del while viene siempre una instruccion
 
 //Aca vamos a declarar los if, lo que tenemos en cuenta es que nosotros no podemos definir un else sin tener un if
 //-------------------------------------------------
-if : IF PA PC bloque  else; 
+if : IF PA PC bloque
+    |IF PA PC bloque else; 
+
 //Lo que tenemos en cuenta aca es que nosotros podemos anidar, pero solamente puede existir un else por cada if, pero else if los que queramos
 else : ELSE bloque
     | ELSE if
@@ -99,33 +97,31 @@ bloque : LLA instrucciones LLC;
 //Aca vamos a declarar las operaciones aritmeticas y logicas
 //------------------------------------
 
-opal: expl;
+opal: expresionl;
 
-expl: ORR termlogic expl 
-    |;
+expresionl : terminol expl;
 
-termlogic: factorlogico tlogic;
+expl : ORR terminol expl
+     |;
 
-tlogic: AND factorlogico tlogic 
-    |;
+terminol : expresion terml | expresion operador expresion terml;
 
-factorlogico: opal 
-    | comp 
-    | (PA expl PC);
+terml : AND expresionl terml
+      |;
 
-comp: opal operador opal | comp operador comp;
+expresion : termino e;
+
+termino : factor term ;
 
 e : SUMA term e
     |RESTA term e
     |
     ;
 
-term : factor t ;
 
-
-t : MULT factor t
-    |DIV factor t 
-    |MOD factor t 
+term : MULT factor term
+    |DIV factor term 
+    |MOD factor term 
     |
     ;
 
@@ -133,6 +129,7 @@ factor : NUMERO
        | ID
        | PA e PC
       ;
+
 ifor : 	FOR PA asignacion PYC opal PYC asignacion PC instrucciones;
 
 
@@ -162,8 +159,8 @@ init : (INT //Aca declaro los tipos posibles de las variables, no estoy seguro s
 asignacion : ID ASIG opal PYC; 
 //----------------------------
 
-cond : term condicionales
-      (term | )
+cond : termino condicionales
+      (termino | )
       ;
 
 condicionales : '=='
