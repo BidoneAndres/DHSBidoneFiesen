@@ -98,11 +98,22 @@ bloque : LLA instrucciones LLC;
 
 //Aca vamos a declarar las operaciones aritmeticas y logicas
 //------------------------------------
-opal : exp ; //completar para nosotros
 
-exp : term e;
+opal: expl;
 
+expl: ORR termlogic expl 
+    |;
 
+termlogic: factorlogico tlogic;
+
+tlogic: AND factorlogico tlogic 
+    |;
+
+factorlogico: opal 
+    | comp 
+    | (PA expl PC);
+
+comp: opal operador opal | comp operador comp;
 
 e : SUMA term e
     |RESTA term e
@@ -120,23 +131,10 @@ t : MULT factor t
 
 factor : NUMERO
        | ID
-       | PA exp PC
+       | PA e PC
       ;
-//--------------------------------------
-ifor : 	FOR PA asignacion PYC oplo PYC asignacion PC instrucciones;
+ifor : 	FOR PA asignacion PYC opal PYC asignacion PC instrucciones;
 
-oplo: expresion_logica;
-
-
-expresion_logica: ORR termino_logico expresion_logica |;
-
-termino_logico: factor_logico term_logico;
-
-term_logico: AND factor_logico term_logico |;
-
-factor_logico: oplo | comp | (PA expresion_logica PC);
-
-comp: oplo operador oplo | comp operador comp;
 
 //Usamos para inicializar la variable esta parte 
 //---------------------------
@@ -176,7 +174,7 @@ condicionales : '=='
               ;
 
 
-iter : ID exp;
+iter : ID e;
 
 //Esta va a ser la parte donde estan las funciones, tanto los prototipos como las funciones en si....
 //------------------------------------

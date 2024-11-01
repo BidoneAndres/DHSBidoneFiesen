@@ -7,7 +7,7 @@ from Walker import Walker
 
 
 def main(argv):
-    archivo = "/home/andres/Documents/DHS/DHSBidoneFiesen/DHS/input/opal.txt"
+    archivo = "/home/eduardo/DHS/DHSBidoneFiesen/DHS/input/opal.txt"
     if len(argv) > 1 :
         archivo = argv[1]
     input = FileStream(archivo)
