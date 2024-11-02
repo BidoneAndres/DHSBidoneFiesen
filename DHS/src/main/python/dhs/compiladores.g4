@@ -42,11 +42,14 @@ GT: '>';
 LE: '<=';
 GE: '>=';
 
+INCR : '++';
+DECR : '--';
 
 
 WS : [ \t\n\r] -> skip;
 ID : (LETRA | '_')(LETRA | DIGITO | '_')* ;
-ORR : '||';
+
+OR : '||';
 AND : '&&';
 NOT : '!';
 OTRO : . ;
@@ -80,7 +83,7 @@ instruccion:  init PYC
             | return PYC
             | callFunc PYC
             ;
-operador: EQQ | NE | GT | LT | GE | LE;
+operador: EQQ | NE | GT | LT | GE | LE | OR | AND | NOT | OTRO ;
 
 
 
@@ -88,7 +91,7 @@ iwhile : WHILE PA ID PC bloque ;//llave representa una instruccion compuesta, de
 
 //Aca vamos a declarar los if, lo que tenemos en cuenta es que nosotros no podemos definir un else sin tener un if
 //-------------------------------------------------
-if : IF PA opal PC bloque  else; 
+if: IF PA explogic PC bloque |IF PA explogic PC bloque ELSE bloque;
 //Lo que tenemos en cuenta aca es que nosotros podemos anidar, pero solamente puede existir un else por cada if, pero else if los que queramos
 else : ELSE bloque
     | ELSE if
@@ -101,45 +104,21 @@ bloque : LLA instrucciones LLC;
 
 //Aca vamos a declarar las operaciones aritmeticas y logicas
 //------------------------------------
-opal : exp ; //completar para nosotros
+opal: explogic;
 
-exp : term e;
+explogic: expArit| expArit OR expArit|expArit AND expArit;
 
+expArit: termino operador termino | termino;
 
+termino: factor op factor | factor;
 
-e : SUMA term e
-    |RESTA term e
-    |
-    ;
+factor: ID | NUMERO | PA expArit PC;
 
-term : factor t ;
+op: SUMA | RESTA | MULT | DIV | MOD; 
 
-
-t : MULT factor t
-    |DIV factor t 
-    |MOD factor t 
-    |
-    ;
-
-factor : NUMERO
-       | ID
-       | PA exp PC
-      ;
-//--------------------------------------
-ifor : 	FOR PA asignacion PYC opal PYC asignacion PC bloque;
-
-oplo: expresion_logica;
+ifor: FOR PA asignacion PYC explogic PYC asignacion PC bloque;
 
 
-expresion_logica: ORR termino_logico expresion_logica |;
-
-termino_logico: factor_logico term_logico;
-
-term_logico: AND factor_logico term_logico |;
-
-factor_logico: oplo | comp | (PA expresion_logica PC);
-
-comp: oplo operador oplo | comp operador comp;
 
 //Usamos para inicializar la variable esta parte 
 //---------------------------
@@ -150,7 +129,7 @@ init : (INT //Aca declaro los tipos posibles de las variables, no estoy seguro s
     | CHAR) ID;
 
 
-var : ID | (COM ID)*;
+var : ID | ID COM ID;
 
 
 //Esto lo que nos va a permitir es que podamos inicializar las variables que queramos, asi como asignarles el valor de inmediato
@@ -167,23 +146,13 @@ var : ID | (COM ID)*;
 //Usamos esta parte para la asignacion de un valor, tenemos en cuenta que este valor no solo puede ser ingresado de 
 //manera numerica, si no que tambien por una funcion aritmetica y logica o por otra variable
 //----------------------------
-
 asignacion : ID ASIG opal; 
 //----------------------------
 
-cond : term condicionales
-      (term | )
+cond : termino operador| termino|
       ;
 
-condicionales : '=='
-              | '<'
-              | '>'
-              | '<='
-              | '>='
-              ;
-
-
-iter : ID exp;
+iter : ID explogic;
 
 //Esta va a ser la parte donde estan las funciones, tanto los prototipos como las funciones en si....
 //------------------------------------
@@ -217,5 +186,10 @@ var_func : (INT //Aca declaro los tipos posibles de las variables, no estoy segu
 
 
 callFunc : ID PA (var|) PC; //Este lo vamos a usar para la llamada a funciones....
+
+incremento : ID INCR
+           | INCR ID ;
+decremento : ID DECR 
+           | DECR ID;
 
 return : RETURN opal;

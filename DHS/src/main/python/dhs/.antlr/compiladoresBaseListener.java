@@ -292,6 +292,18 @@ public class compiladoresBaseListener implements compiladoresListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterVar(compiladoresParser.VarContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitVar(compiladoresParser.VarContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterAsignacion(compiladoresParser.AsignacionContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -371,6 +383,18 @@ public class compiladoresBaseListener implements compiladoresListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitVar_func(compiladoresParser.Var_funcContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterCallFunc(compiladoresParser.CallFuncContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCallFunc(compiladoresParser.CallFuncContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
