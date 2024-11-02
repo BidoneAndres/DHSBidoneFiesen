@@ -32,18 +32,18 @@ class Escucha(compiladoresListener) :
     # -----------------------------------------------------------
     def enterBloque(self, ctx: compiladoresParser.BloqueContext):
         print("---> Encontre un BLOQUE")
-        contexto = Contexto()
-        self.tablaDeSimbolos.addContexto(contexto)
+        #context = Contexto()
+       # self.TablaSimbolos.addContexto(TablaSimbolos,context)
         
     def exitBloque(self, ctx: compiladoresParser.BloqueContext):
         
         print ("Salgo de un bloque")
-        print ("Cantidad de hijos: " + str(ctx.getChildCount()))
-        print("Tokens: " + str(ctx.getText()))
+        #print ("Cantidad de hijos: " + str(ctx.getChildCount()))
+        #print("Tokens: " + str(ctx.getText()))
 
-        print("Se encontro:")
-        TablaSimbolos.contextos[-1].imprimirTabla()
-        TablaSimbolos.delContexto()
+ #       print("Se encontro:")
+  #      TablaSimbolos.contextos[-1].imprimirTabla()
+   #     TablaSimbolos.delContexto(TablaSimbolos)
 
         return super().exitBloque(ctx)
     # -----------------------------------------------------------
@@ -130,8 +130,12 @@ class Escucha(compiladoresListener) :
         nombre = ctx.getChild(0).getText()
         valor = ctx.getChild(2).getText()
         
-        if TablaSimbolos.buscarLocal(TablaSimbolos, nombre) != 1 : 
+        buscarLocal = TablaSimbolos.buscarLocal(TablaSimbolos, nombre)
+
+        if buscarLocal != 1 : 
             print("La variable ' " + nombre + " ' se le asigno el valor ' " + valor + " ' ")
+            buscarLocal.inicializado = 1
+            
 
         else:
             print("ERROR, la variable no a sido inicializada...")
@@ -166,31 +170,45 @@ class Escucha(compiladoresListener) :
     
     def exitFunc(self, ctx: compiladoresParser.FuncContext):
         
-        tipoFuncion = ctx.proto.getChild(0).getText()
-        nombre = ctx.proto.getChild(1).getText()
-        #valores = ctx.getChild(2).getText()
+        retorno = ctx.getChild(0).getText()
+        nombrefuncion = ctx.getChild(1).getText()
 
+        buscarGlobal = TablaSimbolos.buscarGlobal(TablaSimbolos, nombrefuncion)
 
-        comprobarGlobal = TablaSimbolos.buscarGlobal(TablaSimbolos, nombre)
+        comprobar = False
+        listaParametros = []
 
-        if comprobarGlobal == 1 :
+        if buscarGlobal == 1:
+            print ( "ERROR, la funcion no tiene declarado un prototipo" )
+            return None;
+        parametros = ctx.var_func()
 
-            if TablaSimbolos.buscarLocal( TablaSimbolos, nombre) == 1:
-                print ("Se agrego correctamente la funcion")
-                print ("--------------------------------------")
-        
-                print("---> Tipo de dato: " + tipoDato)
-                print("---> Nombre de la Funcion: " + nombre ) 
-               # print( "---> Parametros / Argumentos de la funcion: " + valores )
-                print ("--------------------------------------")
-        
-                TablaSimbolos.addIdentificador(TablaSimbolos, nombre, tipoDato)
-            else: 
-                print ("---> El id ya esta en uso...")
+        if parametros and parametros.getChildCount() > 0:
+                
+            comprobar = True
+
+            i = 0
+            while i < parametros.getChildCount() :
+            
+                tipo = parametros.getChild(i).getText()
+                nombre = parametros. getChild(i+1).getText()
+                listaParametros.append(f"{tipo} {nombre}")
+                i+=3
+
+            print ("---> La funcion ' " + nombrefuncion + " ' fue ingresada correctamente")
+            print ("--------------------------------------")
+            print ("Nombre: " + nombrefuncion)
+            print ("Tipo de Retorno: " + retorno)
+            
+        if comprobar :
+            print("Parametros: ")
+            print(listaParametros)
         else :
-            print ("---> El id ya esta en uso...")
-           
-        return super().exitFunc(ctx)
+            print("La funcion no necesita parametros")    
+        print ("--------------------------------------")       
+
+        
+        
 
     #Aca declaramos el prototipo 
     # -----------------------------------------------------------
@@ -245,3 +263,65 @@ class Escucha(compiladoresListener) :
             return None
         return super().exitProto(ctx)
     # -----------------------------------------------------------
+
+    #Esta parte la vamos a usar para comprobar si los factores de las opal estan todos definidos
+    #------------------------------------------------------------------
+    def enterFactor(self, ctx: compiladoresParser.FactorContext):
+        
+        return super().enterFactor(ctx)
+
+    def exitFactor(self, ctx: compiladoresParser.FactorContext):
+        
+        nombreVariable = ctx.ID() #Aca lo que puede pasar es que no tengamos un id como factor, entonces devuelve none en ese caso
+
+        if nombreVariable != None : 
+            busqueda = TablaSimbolos.buscarLocal(TablaSimbolos, nombreVariable.getText()) #Aca lo que vamos a hacer es buscarlo dentro de la tabla de simbolos...
+            #comprobamos is esta inicializada la variable
+            if busqueda == 1:
+                print( "ERROR, variable no existente" )
+                return None
+                
+            if busqueda.inicializado == 1: 
+                    #Vamos a definir la variable como usada
+
+                    busqueda.usado = 1
+            else :
+                print("ERROR, la variable no a sido inicializada")
+ 
+            if busqueda == 1:
+                busqueda = TablaSimbolos.buscarGlobal(TablaSimbolos ,nombreVariable)
+
+                if busqueda == 1:
+                    print( "ERROR, variable no existente" )
+                    return None
+                
+                #comprobamos si fue inicializada, si no fue asi no se conoce el valor, por lo que no podemos hacer nada con ella
+                if busqueda.inicializado == 1: 
+                    #Vamos a definir la variable como usada
+                    busqueda.usado = 1 
+                else :
+                    print("ERROR, la variable no a sido inicializada")
+                    
+
+        return super().exitFactor(ctx)
+    #Aca vamos a definir la llamadas a funciones...
+    #------------------------------------------------------------------
+    def enterCallFunc(self, ctx: compiladoresParser.CallFuncContext):
+        return super().enterCallFunc(ctx)
+    
+
+    def exitCallFunc(self, ctx: compiladoresParser.CallFuncContext):
+        
+        nombre = ctx.getChild(0).getText()
+
+        comprobarGlobal = TablaSimbolos.buscarGlobal(TablaSimbolos, nombre)
+
+        if comprobarGlobal == 1 :
+
+            print("ERROR, la funcion no esta definida")
+            return None
+        
+        
+        
+        return super().exitCallFunc(ctx)
+    #------------------------------------------------------------------

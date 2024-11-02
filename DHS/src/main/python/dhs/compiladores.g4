@@ -42,12 +42,16 @@ GT: '>';
 LE: '<=';
 GE: '>=';
 
+
+
 WS : [ \t\n\r] -> skip;
 ID : (LETRA | '_')(LETRA | DIGITO | '_')* ;
 ORR : '||';
 AND : '&&';
 NOT : '!';
 OTRO : . ;
+
+
 
 s : ID     {print("ID ->" + $ID.text + "<--") }         s
   | NUMERO {print("NUMERO ->" + $NUMERO.text + "<--") } s
@@ -64,26 +68,27 @@ programa : instrucciones EOF ; //secuencia de instrucciones hasta el final del a
 instrucciones : instruccion instrucciones //es una instruccion con mas instrucciones 
                 |
                 ;
-
 instruccion:  init PYC
             | iwhile
             | bloque
-            | asignacion
+            | ifor
+            | asignacion PYC
             | proto PYC
             | func
             | if
+            | opal PYC
             | return PYC
-            | ifor
+            | callFunc PYC
             ;
 operador: EQQ | NE | GT | LT | GE | LE;
+
+
 
 iwhile : WHILE PA ID PC bloque ;//llave representa una instruccion compuesta, despues del while viene siempre una instruccion
 
 //Aca vamos a declarar los if, lo que tenemos en cuenta es que nosotros no podemos definir un else sin tener un if
 //-------------------------------------------------
-if : IF PA PC bloque
-    |IF PA PC bloque else; 
-
+if : IF PA opal PC bloque  else; 
 //Lo que tenemos en cuenta aca es que nosotros podemos anidar, pero solamente puede existir un else por cada if, pero else if los que queramos
 else : ELSE bloque
     | ELSE if
@@ -96,42 +101,45 @@ bloque : LLA instrucciones LLC;
 
 //Aca vamos a declarar las operaciones aritmeticas y logicas
 //------------------------------------
+opal : exp ; //completar para nosotros
 
-opal: expresionl;
+exp : term e;
 
-expresionl : terminol expl;
 
-expl : ORR terminol expl
-     |;
-
-terminol : expresion terml | expresion operador expresion terml;
-
-terml : AND expresionl terml
-      |;
-
-expresion : termino e;
-
-termino : factor term ;
 
 e : SUMA term e
     |RESTA term e
     |
     ;
 
+term : factor t ;
 
-term : MULT factor term
-    |DIV factor term 
-    |MOD factor term 
+
+t : MULT factor t
+    |DIV factor t 
+    |MOD factor t 
     |
     ;
 
 factor : NUMERO
        | ID
-       | PA e PC
+       | PA exp PC
       ;
+//--------------------------------------
+ifor : 	FOR PA asignacion PYC opal PYC asignacion PC bloque;
 
-ifor : 	FOR PA asignacion PYC opal PYC asignacion PC instrucciones;
+oplo: expresion_logica;
 
+
+expresion_logica: ORR termino_logico expresion_logica |;
+
+termino_logico: factor_logico term_logico;
+
+term_logico: AND factor_logico term_logico |;
+
+factor_logico: oplo | comp | (PA expresion_logica PC);
+
+comp: oplo operador oplo | comp operador comp;
 
 //Usamos para inicializar la variable esta parte 
 //---------------------------
@@ -140,6 +148,10 @@ init : (INT //Aca declaro los tipos posibles de las variables, no estoy seguro s
     | FLOAT 
     | BOOLEAN
     | CHAR) ID;
+
+
+var : ID | (COM ID)*;
+
 
 //Esto lo que nos va a permitir es que podamos inicializar las variables que queramos, asi como asignarles el valor de inmediato
 
@@ -156,11 +168,11 @@ init : (INT //Aca declaro los tipos posibles de las variables, no estoy seguro s
 //manera numerica, si no que tambien por una funcion aritmetica y logica o por otra variable
 //----------------------------
 
-asignacion : ID ASIG opal PYC; 
+asignacion : ID ASIG opal; 
 //----------------------------
 
-cond : termino condicionales
-      (termino | )
+cond : term condicionales
+      (term | )
       ;
 
 condicionales : '=='
@@ -171,7 +183,7 @@ condicionales : '=='
               ;
 
 
-iter : ID e;
+iter : ID exp;
 
 //Esta va a ser la parte donde estan las funciones, tanto los prototipos como las funciones en si....
 //------------------------------------
@@ -184,7 +196,13 @@ proto : (INT //Aca declaro los tipos posibles de las variables, no estoy seguro 
     | CHAR | VOID) ID PA (var_func|) PC;
 //func : (TIP | VOID) PA (var_func|) PC bloque; //Y bueno esto es practicamente lo mismo, nada mas que termina con los bloques
 
-func: proto ID  bloque;
+//si lo hago de la forma func: proto bloque; no anda, no se porque 
+
+func: (INT //Aca declaro los tipos posibles de las variables, no estoy seguro si el string hace falta, y despues le tengo que preguntar al profe
+    | DOUBLE //si tambien entra los double int y los double float
+    | FLOAT 
+    | BOOLEAN
+    | CHAR | VOID) ID PA (var_func|) PC bloque;
 
 var_func : (INT //Aca declaro los tipos posibles de las variables, no estoy seguro si el string hace falta, y despues le tengo que preguntar al profe
         | DOUBLE //si tambien entra los double int y los double float
@@ -196,5 +214,8 @@ var_func : (INT //Aca declaro los tipos posibles de las variables, no estoy segu
                         | BOOLEAN
                         | CHAR) ID)*
                         ;
+
+
+callFunc : ID PA (var|) PC; //Este lo vamos a usar para la llamada a funciones....
 
 return : RETURN opal;

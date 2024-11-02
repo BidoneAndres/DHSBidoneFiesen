@@ -124,6 +124,11 @@ class compiladoresVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by compiladoresParser#var.
+    def visitVar(self, ctx:compiladoresParser.VarContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by compiladoresParser#asignacion.
     def visitAsignacion(self, ctx:compiladoresParser.AsignacionContext):
         return self.visitChildren(ctx)
@@ -156,6 +161,11 @@ class compiladoresVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by compiladoresParser#var_func.
     def visitVar_func(self, ctx:compiladoresParser.Var_funcContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by compiladoresParser#callFunc.
+    def visitCallFunc(self, ctx:compiladoresParser.CallFuncContext):
         return self.visitChildren(ctx)
 
 

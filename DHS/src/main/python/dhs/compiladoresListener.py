@@ -215,6 +215,15 @@ class compiladoresListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by compiladoresParser#var.
+    def enterVar(self, ctx:compiladoresParser.VarContext):
+        pass
+
+    # Exit a parse tree produced by compiladoresParser#var.
+    def exitVar(self, ctx:compiladoresParser.VarContext):
+        pass
+
+
     # Enter a parse tree produced by compiladoresParser#asignacion.
     def enterAsignacion(self, ctx:compiladoresParser.AsignacionContext):
         pass
@@ -275,6 +284,15 @@ class compiladoresListener(ParseTreeListener):
 
     # Exit a parse tree produced by compiladoresParser#var_func.
     def exitVar_func(self, ctx:compiladoresParser.Var_funcContext):
+        pass
+
+
+    # Enter a parse tree produced by compiladoresParser#callFunc.
+    def enterCallFunc(self, ctx:compiladoresParser.CallFuncContext):
+        pass
+
+    # Exit a parse tree produced by compiladoresParser#callFunc.
+    def exitCallFunc(self, ctx:compiladoresParser.CallFuncContext):
         pass
 
 
