@@ -24,7 +24,7 @@ DOUBLE : 'double';
 CHAR : 'char'; 
 FLOAT : 'float'; 
 STRING : 'String';
-BOOLEAN : 'boolean';
+BOOLEAN : 'bool';
 VOID : 'void';
 
 
@@ -42,14 +42,11 @@ GT: '>';
 LE: '<=';
 GE: '>=';
 
-INCR : '++';
-DECR : '--';
 
 
 WS : [ \t\n\r] -> skip;
 ID : (LETRA | '_')(LETRA | DIGITO | '_')* ;
-
-OR : '||';
+ORR : '||';
 AND : '&&';
 NOT : '!';
 OTRO : . ;
@@ -71,27 +68,29 @@ programa : instrucciones EOF ; //secuencia de instrucciones hasta el final del a
 instrucciones : instruccion instrucciones //es una instruccion con mas instrucciones 
                 |
                 ;
-instruccion:  init PYC
+instruccion: puntoYComa  
             | iwhile
             | bloque
             | ifor
-            | asignacion PYC
-            | proto PYC
             | func
             | if
-            | opal PYC
-            | return PYC
-            | callFunc PYC
             ;
-operador: EQQ | NE | GT | LT | GE | LE | OR | AND | NOT | OTRO ;
+
+puntoYComa : init (PYC|)
+            |asignacion (PYC|)
+            |proto (PYC|)
+            |return (PYC|)
+            |callFunc (PYC|)
+            |incremento (PYC|)
+            |decremento (PYC|)
+            ;
 
 
-
-iwhile : WHILE PA ID PC bloque ;//llave representa una instruccion compuesta, despues del while viene siempre una instruccion
+iwhile : WHILE (PA | ) (opal| ) (PC | ) bloque ;//llave representa una instruccion compuesta, despues del while viene siempre una instruccion
 
 //Aca vamos a declarar los if, lo que tenemos en cuenta es que nosotros no podemos definir un else sin tener un if
 //-------------------------------------------------
-if: IF PA explogic PC bloque |IF PA explogic PC bloque ELSE bloque;
+if : IF (PA | ) (opal| ) (PC | ) bloque  else; 
 //Lo que tenemos en cuenta aca es que nosotros podemos anidar, pero solamente puede existir un else por cada if, pero else if los que queramos
 else : ELSE bloque
     | ELSE if
@@ -104,21 +103,55 @@ bloque : LLA instrucciones LLC;
 
 //Aca vamos a declarar las operaciones aritmeticas y logicas
 //------------------------------------
-opal: explogic;
+opal : exp | oplo | callFunc; //completar para nosotros
 
-explogic: expArit| expArit OR expArit|expArit AND expArit;
+exp : term e;
 
-expArit: termino operador termino | termino;
+oplo : and or ;
 
-termino: factor op factor | factor;
+or : ORR and or 
+    |
+    ;
 
-factor: ID | NUMERO | PA expArit PC;
+and : cmp a ;
 
-op: SUMA | RESTA | MULT | DIV | MOD; 
+a : AND cmp a 
+   |
+   ;
 
-ifor: FOR PA asignacion PYC explogic PYC asignacion PC bloque;
+cmp: exp c;
+
+c : EQQ exp c
+  | NE exp c
+  | LT exp c
+  | GT exp c
+  | LE exp c
+  | GE exp c
+  |
+  ;
+
+e : SUMA term e
+    |RESTA term e
+    |
+    ;
+
+term : factor t ;
 
 
+t : MULT factor t
+    |DIV factor t 
+    |MOD factor t 
+    |
+    ;
+
+factor : NUMERO
+       | ID
+       | PA exp PC
+      ;
+//--------------------------------------
+ifor : 	FOR (PA | ) (asignacion | ) PYC (opal | ) PYC (paramFor | ) (PC | ) bloque;
+
+paramFor : asignacion | incremento | decremento;
 
 //Usamos para inicializar la variable esta parte 
 //---------------------------
@@ -129,7 +162,6 @@ init : (INT //Aca declaro los tipos posibles de las variables, no estoy seguro s
     | CHAR) ID;
 
 
-var : ID | ID COM ID;
 
 
 //Esto lo que nos va a permitir es que podamos inicializar las variables que queramos, asi como asignarles el valor de inmediato
@@ -146,13 +178,23 @@ var : ID | ID COM ID;
 //Usamos esta parte para la asignacion de un valor, tenemos en cuenta que este valor no solo puede ser ingresado de 
 //manera numerica, si no que tambien por una funcion aritmetica y logica o por otra variable
 //----------------------------
+
 asignacion : ID ASIG opal; 
 //----------------------------
 
-cond : termino operador| termino|
+cond : term condicionales
+      (term | )
       ;
 
-iter : ID explogic;
+condicionales : '=='
+              | '<'
+              | '>'
+              | '<='
+              | '>='
+              ;
+
+
+iter : ID exp;
 
 //Esta va a ser la parte donde estan las funciones, tanto los prototipos como las funciones en si....
 //------------------------------------
@@ -171,7 +213,7 @@ func: (INT //Aca declaro los tipos posibles de las variables, no estoy seguro si
     | DOUBLE //si tambien entra los double int y los double float
     | FLOAT 
     | BOOLEAN
-    | CHAR | VOID) ID PA (var_func|) PC bloque;
+    | CHAR | VOID) ID (PA | ) (var_func|) (PC | ) bloque;
 
 var_func : (INT //Aca declaro los tipos posibles de las variables, no estoy seguro si el string hace falta, y despues le tengo que preguntar al profe
         | DOUBLE //si tambien entra los double int y los double float
@@ -187,9 +229,9 @@ var_func : (INT //Aca declaro los tipos posibles de las variables, no estoy segu
 
 callFunc : ID PA (var|) PC; //Este lo vamos a usar para la llamada a funciones....
 
-incremento : ID INCR
-           | INCR ID ;
-decremento : ID DECR 
-           | DECR ID;
+var : exp (COM exp)*;
+
+incremento : ID SUMA SUMA;
+decremento : ID RESTA RESTA;
 
 return : RETURN opal;

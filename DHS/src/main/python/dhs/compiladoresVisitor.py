@@ -29,8 +29,8 @@ class compiladoresVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by compiladoresParser#operador.
-    def visitOperador(self, ctx:compiladoresParser.OperadorContext):
+    # Visit a parse tree produced by compiladoresParser#puntoYComa.
+    def visitPuntoYComa(self, ctx:compiladoresParser.PuntoYComaContext):
         return self.visitChildren(ctx)
 
 
@@ -64,6 +64,36 @@ class compiladoresVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by compiladoresParser#oplo.
+    def visitOplo(self, ctx:compiladoresParser.OploContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by compiladoresParser#or.
+    def visitOr(self, ctx:compiladoresParser.OrContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by compiladoresParser#and.
+    def visitAnd(self, ctx:compiladoresParser.AndContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by compiladoresParser#a.
+    def visitA(self, ctx:compiladoresParser.AContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by compiladoresParser#cmp.
+    def visitCmp(self, ctx:compiladoresParser.CmpContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by compiladoresParser#c.
+    def visitC(self, ctx:compiladoresParser.CContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by compiladoresParser#e.
     def visitE(self, ctx:compiladoresParser.EContext):
         return self.visitChildren(ctx)
@@ -89,43 +119,13 @@ class compiladoresVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by compiladoresParser#oplo.
-    def visitOplo(self, ctx:compiladoresParser.OploContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by compiladoresParser#expresion_logica.
-    def visitExpresion_logica(self, ctx:compiladoresParser.Expresion_logicaContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by compiladoresParser#termino_logico.
-    def visitTermino_logico(self, ctx:compiladoresParser.Termino_logicoContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by compiladoresParser#term_logico.
-    def visitTerm_logico(self, ctx:compiladoresParser.Term_logicoContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by compiladoresParser#factor_logico.
-    def visitFactor_logico(self, ctx:compiladoresParser.Factor_logicoContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by compiladoresParser#comp.
-    def visitComp(self, ctx:compiladoresParser.CompContext):
+    # Visit a parse tree produced by compiladoresParser#paramFor.
+    def visitParamFor(self, ctx:compiladoresParser.ParamForContext):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by compiladoresParser#init.
     def visitInit(self, ctx:compiladoresParser.InitContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by compiladoresParser#var.
-    def visitVar(self, ctx:compiladoresParser.VarContext):
         return self.visitChildren(ctx)
 
 
@@ -166,6 +166,21 @@ class compiladoresVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by compiladoresParser#callFunc.
     def visitCallFunc(self, ctx:compiladoresParser.CallFuncContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by compiladoresParser#var.
+    def visitVar(self, ctx:compiladoresParser.VarContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by compiladoresParser#incremento.
+    def visitIncremento(self, ctx:compiladoresParser.IncrementoContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by compiladoresParser#decremento.
+    def visitDecremento(self, ctx:compiladoresParser.DecrementoContext):
         return self.visitChildren(ctx)
 
 

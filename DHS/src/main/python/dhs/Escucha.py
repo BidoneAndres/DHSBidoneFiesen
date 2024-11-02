@@ -50,34 +50,93 @@ class Escucha(compiladoresListener) :
 
     #Ecuchamos si viene un while entonces hacemos...
     # -----------------------------------------------------------       
-    def enterIWhile(self, ctx:compiladoresParser.IwhileContext):
-        print("Encontre WHILE")
-        print ("--------------------------------------")
-        #print("\tCantidad hijos: "+ctx.getChildCount)
-        #print("\tTOQUENS: "+ctx.getText)
+    def enterIwhile(self, ctx: compiladoresParser.IwhileContext):
+        return super().enterIwhile(ctx)
+    
+    def exitIwhile(self, ctx: compiladoresParser.IwhileContext):
+        opal = ctx.opal()
+        pa = ctx.PA()
+        pc = ctx.PC()
+        #Lo que tenemos que hacer aca es comprobar si tenemos ambos parentesis en el while 
 
-    def exitIWhile(self, ctx:compiladoresParser.IwhileContext):
+        if pa == None :
+            print( "ERROR, se espera un '(' " )
+            return None
+
+        if pc == None :
+            print ( "ERROR, se espera un ')'" )
+            return None
         
-
-        iwhile = ctx.getChild(0).getText()
-        condicional = ctx.getChild(2).getText()
-
-
-        print ("--------------------------------------")
-        
-        print ( "---> Funcion: " + iwhile )
-        print ( "---> Condicional: " + condicional )
-
-        print ("--------------------------------------")
-        print("Fin de WHILE")
+        if opal == None : 
+            print ( "ERROR, se espera una operacion aritmetica o logica")
+            return None
+        #En el caso de tenerlos tenemos que comprobar si tenemos el opal.
 
         
-        #print("\tCantidad hijos: "+ctx.getChildCount)
-        #print("\tTOQUENS: "+ctx.getText)
+        
+        return super().exitIwhile(ctx)
     # -----------------------------------------------------------
 
+    # Esto es para el if
+    # -----------------------------------------------------------
+    def enterIf(self, ctx: compiladoresParser.IfContext):
+        return super().enterIf(ctx)
     
+    def exitIf(self, ctx: compiladoresParser.IfContext):
+        
+        opal = ctx.opal()
+        pa = ctx.PA()
+        pc = ctx.PC()
+        #Lo que tenemos que hacer aca es comprobar si tenemos ambos parentesis en el while 
+        print ("Entra")
+        if pa == None :
+            print( "ERROR, se espera un '(' " )
+            return None
 
+        if pc == None :
+            print ( "ERROR, se espera un ')'" )
+            return None
+        
+        if opal == None : 
+            print ( "ERROR, se espera una operacion aritmetica o logica")
+        return super().exitIf(ctx)
+    # -----------------------------------------------------------
+    
+    #Esto va a ser para el for, enrealidad tengo tener en cuenta mas cosas
+    # -----------------------------------------------------------
+    def enterIfor(self, ctx: compiladoresParser.IforContext):
+        return super().enterIfor(ctx)
+    
+    def exitIfor(self, ctx: compiladoresParser.IforContext):
+        
+        opal = ctx.opal()
+        pa = ctx.PA()
+        pc = ctx.PC()
+        asig = ctx.asignacion()
+
+        #Lo que tenemos que hacer aca es comprobar si tenemos ambos parentesis en el while 
+        
+        if pa == None :
+            print( "ERROR, se espera un '(' " )
+            return None
+
+        if pc == None :
+            print ( "ERROR, se espera un ')'" )
+            return None
+        
+        if opal == None : 
+            print ( "ERROR, se espera una operacion aritmetica o logica")
+            return None
+        
+        if asig == None :
+            print( "ERROR, se espera una asignacion " )
+            return None
+        
+        return super().exitIf(ctx)
+        
+
+        return super().exitIfor(ctx)
+    # -----------------------------------------------------------
 
     #Aca declaramos cuando inicializamos las variables...
     # -----------------------------------------------------------
@@ -170,6 +229,21 @@ class Escucha(compiladoresListener) :
     
     def exitFunc(self, ctx: compiladoresParser.FuncContext):
         
+
+        #Primero compruebo que este bien escrita
+
+        pa = ctx.PA()
+        pc = ctx.PC()
+        #Lo que tenemos que hacer aca es comprobar si tenemos ambos parentesis en el while 
+        
+        if pa == None :
+            print( "ERROR, se espera un '(' " )
+            return None
+
+        if pc == None :
+            print ( "ERROR, se espera un ')'" )
+            return None
+        
         retorno = ctx.getChild(0).getText()
         nombrefuncion = ctx.getChild(1).getText()
 
@@ -220,6 +294,8 @@ class Escucha(compiladoresListener) :
         
         retorno = ctx.getChild(0).getText()
         nombrePrototipo = ctx.getChild(1).getText()
+        
+        #Lo primero que quiero comprobar es que este cuente con el punto y coma 
 
 
         buscarGlobal = TablaSimbolos.buscarGlobal(TablaSimbolos, nombrePrototipo)
@@ -264,7 +340,7 @@ class Escucha(compiladoresListener) :
         return super().exitProto(ctx)
     # -----------------------------------------------------------
 
-    #Esta parte la vamos a usar para comprobar si los factores de las opal estan todos definidos
+    #Esta es la parte de las opal
     #------------------------------------------------------------------
     def enterFactor(self, ctx: compiladoresParser.FactorContext):
         
@@ -324,4 +400,70 @@ class Escucha(compiladoresListener) :
         
         
         return super().exitCallFunc(ctx)
+        #La parte de comprobar si las variables estan inicializadas ya esta echa, porque como sabemos podemos tener
+        #funciones aritmeticas en las mismas, entonces son comprobadas por factor.
+    #------------------------------------------------------------------
+
+
+    #Parte de incremento y decremento 
+    #------------------------------------------------------------------
+
+    def enterIncremento(self, ctx: compiladoresParser.IncrementoContext):
+        return super().enterIncremento(ctx)
+
+    def exitIncremento(self, ctx: compiladoresParser.IncrementoContext):
+
+
+        variable = ctx.getChild(0).getText()
+
+        local = TablaSimbolos.buscarLocal(TablaSimbolos, variable)
+        #Aca vamos a buscar si se encuentra declarada de manera local
+        if local != 1:
+            # si si
+
+            #Comprobamos si la variable esta inicializada
+
+            if local.inicializado != 1 : 
+                print ( "ERROR, la variable no esta declarada" )
+                return None
+            
+            # En el caso de si estar inicializada lo que vamos a hacer es ponerla como usada.
+
+            local.usado = 1
+        else :
+            
+            #Ahora la vamos a buscar pero globalmente
+            glob = TablaSimbolos.buscarLocal(TablaSimbolos, variable)
+
+            if glob == 1:
+                print ( "ERROR, la variable no esta inicializada" )
+                return None
+            
+            if glob.inicializado != 1 : 
+                print ( "ERROR, la variable no esta declarada" )
+                return None
+            
+
+            #Si esta la encontramos 
+            glob.usado = 1
+
+
+
+        return super().exitIncremento(ctx)
+
+    #------------------------------------------------------------------
+
+    #Para comprobar si hace falta un punto y coma 
+    #------------------------------------------------------------------
+    def enterPuntoYComa(self, ctx: compiladoresParser.PuntoYComaContext):
+        return super().enterPuntoYComa(ctx)
+    
+    def exitPuntoYComa(self, ctx: compiladoresParser.PuntoYComaContext):
+        #Comprobamos si tenemos el punto y coma en nuestra instruccion
+        puntoYComa = ctx.PYC()
+        if puntoYComa == None:
+            print ( "ERROR, se espera un: ';'" )
+            return None;
+     
+        return super().exitPuntoYComa(ctx)
     #------------------------------------------------------------------
