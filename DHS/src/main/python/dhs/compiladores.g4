@@ -76,21 +76,21 @@ instruccion: puntoYComa
             | if
             ;
 
-puntoYComa : init (PYC|)
-            |asignacion (PYC|)
-            |proto (PYC|)
-            |return (PYC|)
-            |callFunc (PYC|)
-            |incremento (PYC|)
-            |decremento (PYC|)
+puntoYComa : init PYC
+            |asignacion PYC
+            |proto PYC
+            |return PYC
+            |callFunc PYC
+            |incremento PYC
+            |decremento PYC
             ;
 
 
-iwhile : WHILE (PA | ) (opal| ) (PC | ) bloque ;//llave representa una instruccion compuesta, despues del while viene siempre una instruccion
+iwhile : WHILE PA opal PC bloque ;//llave representa una instruccion compuesta, despues del while viene siempre una instruccion
 
 //Aca vamos a declarar los if, lo que tenemos en cuenta es que nosotros no podemos definir un else sin tener un if
 //-------------------------------------------------
-if : IF (PA | ) (opal| ) (PC | ) bloque  else; 
+if : IF PA opal PC bloque  else; 
 //Lo que tenemos en cuenta aca es que nosotros podemos anidar, pero solamente puede existir un else por cada if, pero else if los que queramos
 else : ELSE bloque
     | ELSE if
@@ -149,7 +149,7 @@ factor : NUMERO
        | PA exp PC
       ;
 //--------------------------------------
-ifor : 	FOR (PA | ) (asignacion | ) PYC (opal | ) PYC (paramFor | ) (PC | ) bloque;
+ifor : 	FOR PA asignacion PYC opal  PYC paramFor PC bloque;
 
 paramFor : asignacion | incremento | decremento;
 

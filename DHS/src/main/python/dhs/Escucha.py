@@ -22,28 +22,34 @@ class Escucha(compiladoresListener) :
 
     # Exit a parse tree produced by compiladoresParser#programa.
     def exitPrograma(self, ctx:compiladoresParser.ProgramaContext):
+        
+        
         print("Fin de la compilacion")
         print("Se encontraron")
         print("\tNodos: "+str(self.numNode))
         print("\tTokens: "+str(self.numTokens))
+
+        print( "*******Identificadores no Usados*******" )
+        print (TablaSimbolos.buscarNoUsados(TablaSimbolos))
     # -----------------------------------------------------------
 
     #Cuando usamos un bloque, estoy probando con while 
     # -----------------------------------------------------------
     def enterBloque(self, ctx: compiladoresParser.BloqueContext):
         print("---> Encontre un BLOQUE")
-        #context = Contexto()
-       # self.TablaSimbolos.addContexto(TablaSimbolos,context)
+        context = Contexto()
+        self.TablaSimbolos.addContexto(context)
         
     def exitBloque(self, ctx: compiladoresParser.BloqueContext):
         
         print ("Salgo de un bloque")
-        #print ("Cantidad de hijos: " + str(ctx.getChildCount()))
-        #print("Tokens: " + str(ctx.getText()))
+        print ("Cantidad de hijos: " + str(ctx.getChildCount()))
+        print("Tokens: " + str(ctx.getText()))
 
- #       print("Se encontro:")
-  #      TablaSimbolos.contextos[-1].imprimirTabla()
-   #     TablaSimbolos.delContexto(TablaSimbolos)
+        print("Se encontro:")
+        TablaSimbolos.contextos[-1].imprimirTabla()
+        TablaSimbolos.delContexto(TablaSimbolos)
+
 
         return super().exitBloque(ctx)
     # -----------------------------------------------------------
@@ -192,13 +198,15 @@ class Escucha(compiladoresListener) :
         buscarLocal = TablaSimbolos.buscarLocal(TablaSimbolos, nombre)
 
         if buscarLocal != 1 : 
+
+
             print("La variable ' " + nombre + " ' se le asigno el valor ' " + valor + " ' ")
             buscarLocal.inicializado = 1
             
 
         else:
             print("ERROR, la variable no a sido inicializada...")
-
+            return None
         return super().exitAsignacion(ctx)
         
 
@@ -363,6 +371,7 @@ class Escucha(compiladoresListener) :
                     busqueda.usado = 1
             else :
                 print("ERROR, la variable no a sido inicializada")
+                return None
  
             if busqueda == 1:
                 busqueda = TablaSimbolos.buscarGlobal(TablaSimbolos ,nombreVariable)
@@ -433,14 +442,14 @@ class Escucha(compiladoresListener) :
         else :
             
             #Ahora la vamos a buscar pero globalmente
-            glob = TablaSimbolos.buscarLocal(TablaSimbolos, variable)
+            glob = TablaSimbolos.buscarGlobal(TablaSimbolos, variable)
 
             if glob == 1:
-                print ( "ERROR, la variable no esta inicializada" )
+                print ( "ERROR, la variable no esta declarada" )
                 return None
             
             if glob.inicializado != 1 : 
-                print ( "ERROR, la variable no esta declarada" )
+                print ( "ERROR, la variable no esta inicializado" )
                 return None
             
 
@@ -451,8 +460,51 @@ class Escucha(compiladoresListener) :
 
         return super().exitIncremento(ctx)
 
+    def enterDecremento(self, ctx: compiladoresParser.DecrementoContext):
+        return super().enterDecremento(ctx)
+    
+    def exitDecremento(self, ctx: compiladoresParser.DecrementoContext):
+
+        variable = ctx.getChild(0).getText()
+
+        local = TablaSimbolos.buscarLocal(TablaSimbolos, variable)
+        #Aca vamos a buscar si se encuentra declarada de manera local
+        if local != 1:
+            # si si
+
+            #Comprobamos si la variable esta inicializada
+
+            if local.inicializado != 1 : 
+                print ( "ERROR, la variable no esta declarada" )
+                return None
+            
+            # En el caso de si estar inicializada lo que vamos a hacer es ponerla como usada.
+
+            local.usado = 1
+        else :
+            
+            #Ahora la vamos a buscar pero globalmente
+            glob = TablaSimbolos.buscarGlobal(TablaSimbolos, variable)
+
+            if glob == 1:
+                print ( "ERROR, la variable no esta declarada" )
+                return None
+            
+            if glob.inicializado != 1 : 
+                print ( "ERROR, la variable no esta inicializado" )
+                return None
+            
+
+            #Si esta la encontramos 
+            glob.usado = 1
+
+
+
+        return super().exitDecremento(ctx)
+
     #------------------------------------------------------------------
 
+    
     #Para comprobar si hace falta un punto y coma 
     #------------------------------------------------------------------
     def enterPuntoYComa(self, ctx: compiladoresParser.PuntoYComaContext):
