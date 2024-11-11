@@ -134,6 +134,11 @@ class compiladoresVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by compiladoresParser#char.
+    def visitChar(self, ctx:compiladoresParser.CharContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by compiladoresParser#cond.
     def visitCond(self, ctx:compiladoresParser.CondContext):
         return self.visitChildren(ctx)

@@ -233,6 +233,15 @@ class compiladoresListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by compiladoresParser#char.
+    def enterChar(self, ctx:compiladoresParser.CharContext):
+        pass
+
+    # Exit a parse tree produced by compiladoresParser#char.
+    def exitChar(self, ctx:compiladoresParser.CharContext):
+        pass
+
+
     # Enter a parse tree produced by compiladoresParser#cond.
     def enterCond(self, ctx:compiladoresParser.CondContext):
         pass

@@ -43,7 +43,7 @@ LE: '<=';
 GE: '>=';
 
 
-
+SIMP: '\'';
 WS : [ \t\n\r] -> skip;
 ID : (LETRA | '_')(LETRA | DIGITO | '_')* ;
 ORR : '||';
@@ -86,11 +86,11 @@ puntoYComa : init PYC
             ;
 
 
-iwhile : WHILE PA opal PC bloque ;//llave representa una instruccion compuesta, despues del while viene siempre una instruccion
+iwhile : WHILE PA opal PC (bloque | instruccion) ;//llave representa una instruccion compuesta, despues del while viene siempre una instruccion
 
 //Aca vamos a declarar los if, lo que tenemos en cuenta es que nosotros no podemos definir un else sin tener un if
 //-------------------------------------------------
-if : IF PA opal PC bloque  else; 
+if : IF PA opal PC (bloque | instruccion)  else; 
 //Lo que tenemos en cuenta aca es que nosotros podemos anidar, pero solamente puede existir un else por cada if, pero else if los que queramos
 else : ELSE bloque
     | ELSE if
@@ -149,7 +149,7 @@ factor : NUMERO
        | PA exp PC
       ;
 //--------------------------------------
-ifor : 	FOR PA asignacion PYC opal  PYC paramFor PC bloque;
+ifor : 	FOR PA asignacion PYC opal  PYC paramFor PC (bloque|instruccion);
 
 paramFor : asignacion | incremento | decremento;
 
@@ -159,7 +159,7 @@ init : (INT //Aca declaro los tipos posibles de las variables, no estoy seguro s
     | DOUBLE //si tambien entra los double int y los double float
     | FLOAT 
     | BOOLEAN
-    | CHAR) ID;
+    | CHAR) ID (COM ID)*;
 
 
 
@@ -179,8 +179,11 @@ init : (INT //Aca declaro los tipos posibles de las variables, no estoy seguro s
 //manera numerica, si no que tambien por una funcion aritmetica y logica o por otra variable
 //----------------------------
 
-asignacion : ID ASIG opal; 
+asignacion : ID ASIG (opal | char); 
 //----------------------------
+
+
+char : SIMP ID SIMP;
 
 cond : term condicionales
       (term | )

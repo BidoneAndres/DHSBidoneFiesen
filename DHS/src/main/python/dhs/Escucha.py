@@ -157,26 +157,52 @@ class Escucha(compiladoresListener) :
     def exitInit(self, ctx: compiladoresParser.InitContext):
         
         tipoDato = ctx.getChild(0).getText()
-        nombre = ctx.getChild(1).getText()
 
-        comprobarGlobal = TablaSimbolos.buscarGlobal(TablaSimbolos, nombre)
 
-        if comprobarGlobal == 1 :
+        i = 1
 
-            if TablaSimbolos.buscarLocal( TablaSimbolos, nombre) == 1:
-                print ("Se agrego correctamente la variable")
-                print ("--------------------------------------")
+        while i < ctx.getChildCount() :
+
+            nombre = ctx.getChild(i).getText()
+
+            comprobarGlobal = TablaSimbolos.buscarGlobal(TablaSimbolos, nombre)
+
+            if comprobarGlobal == 1 :
+                if TablaSimbolos.buscarLocal( TablaSimbolos, nombre) == 1:
+                    print ("Se agrego correctamente la variable")
+                    print ("--------------------------------------")
         
-                print("--->Tipo de dato: " + tipoDato)
-                print("--->Nombre de Variable: " + nombre ) 
+                    print("--->Tipo de dato: " + tipoDato)
+                    print("--->Nombre de Variable: " + nombre ) 
 
-                print ("--------------------------------------")
+                    print ("--------------------------------------")
         
-                TablaSimbolos.addIdentificador(TablaSimbolos, nombre, tipoDato)
-            else: 
-                print ("---> El id ya esta en uso...")
-        else :
-            print ("---> El id ya esta en uso...")
+                    TablaSimbolos.addIdentificador(TablaSimbolos, nombre, tipoDato)
+                else: 
+                    print ("---> El id ya esta en uso...")
+            else :
+               print ("---> El id ya esta en uso...")
+
+            i = i + 2
+
+        # comprobarGlobal = TablaSimbolos.buscarGlobal(TablaSimbolos, nombre)
+
+        # if comprobarGlobal == 1 :
+
+        #     if TablaSimbolos.buscarLocal( TablaSimbolos, nombre) == 1:
+        #         print ("Se agrego correctamente la variable")
+        #         print ("--------------------------------------")
+        
+        #         print("--->Tipo de dato: " + tipoDato)
+        #         print("--->Nombre de Variable: " + nombre ) 
+
+        #         print ("--------------------------------------")
+        
+        #         TablaSimbolos.addIdentificador(TablaSimbolos, nombre, tipoDato)
+        #     else: 
+        #         print ("---> El id ya esta en uso...")
+        # else :
+        #     print ("---> El id ya esta en uso...")
 
         return super().exitInit(ctx)
     # -----------------------------------------------------------
@@ -193,13 +219,13 @@ class Escucha(compiladoresListener) :
     def exitAsignacion(self, ctx: compiladoresParser.AsignacionContext):
 
         nombre = ctx.getChild(0).getText()
-        valor = ctx.getChild(2).getText()
+        valor = ctx.getChild(2). getText()
         
         buscarLocal = TablaSimbolos.buscarLocal(TablaSimbolos, nombre)
 
         if buscarLocal != 1 : 
 
-
+            
             print("La variable ' " + nombre + " ' se le asigno el valor ' " + valor + " ' ")
             buscarLocal.inicializado = 1
             
@@ -218,7 +244,7 @@ class Escucha(compiladoresListener) :
          print("Nombre Variable: "+ ctx.getChild(1).getText())  
          
     def visitTerminal(self, node: TerminalNode):
-        print("----> Token: " + node.getText())
+        #print("----> Token: " + node.getText())
         self.numTokens =+ 1
         
     def visitErrorNode(self, node: ErrorNode):

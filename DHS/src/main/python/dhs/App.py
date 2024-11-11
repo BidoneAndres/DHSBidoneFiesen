@@ -20,6 +20,9 @@ def main(argv):
     #print(tree.toStringTree(recog=parser))
     #caminante = Walker()
     #caminante.visitPrograma(tree)
+    #Agregar una lista de declaracion
+    
+
 
 if __name__ == '__main__':
     main(sys.argv)
