@@ -1,6 +1,6 @@
 Tabla de Simbolos
 
-Guarda todos los ID que define el usuario con sus caracteristicas. Gestiona los contextos.
+Guarda todos los ID que define el usuario con sus caraConstantesristicas. Gestiona los contextos.
 
 Acciones:
     1-  Agregar contextos

@@ -9,10 +9,10 @@ class Constante:
     entero = re.compile(r'^[+-]?\d+$')
     #\d+ para uno o mas digitos
     decimal = re.compile(r'^[+-]?\d+\.\d+$')
-    variables = re.compile(r'^[a-zA-Z]|[a-zA-Z0-9_]+$')
-    asignacion = re.compile(r'[a-zA-Z]=\d+(\.\d+)?|[a-zA-Z]=[a-zA-Z]')
+    variables = re.compile(r'^[a-zA-Z][a-zA-Z0-9_]*$')
+    asignacion = re.compile(r'[a-zA-Z]+=\d+(\.\d+)?|[a-zA-Z]+=[a-zA-Z]+')
     etiqueta = re.compile(r'labell\d+|labelmain')
-    pilaPush = re.compile(r'(push)[t\d]*[a-zA-Z]?')
+    pilaPush = re.compile(r'push\s+(t\d+|[a-zA-Z]|l\d+)')
     pilaPop = re.compile(r'pop\s*([a-zA-Z]|\bt\d+|l\d+)\b')
     jmpFuncion = re.compile(r'\bjmpl(?:[0-9]+|\w+)\b')
     #los dos siguiente son para identificar asignaciones de numeros o letras a temporales
@@ -28,8 +28,10 @@ class Constante:
     ifNot = re.compile(r'\bifnot\b')
     ifNotDivision = re.compile(
         r'\bifnot\s*([a-zA-Z]+|\d+|True|False|t\d+)\s*jmp\s*([a-zA-Z]+|\d+|True|False|l\d+)\b', re.IGNORECASE)
-    nombreF = re.compile(r'label\s+((?!main|\bl\d+)\S+)')
+    nombreFuncion = re.compile(r'label\s+((?!main|\bl\d+)\S+)')
     funcion = re.compile(r'\blabel\b\w*')
     # expresion para operaciones de letras y numeros asignados a temporales
     opalLetas = re.compile(r'\bt\d+[=][a-zA-Z]+\s*([+\-*/][a-zA-Z]+\s*)*\b')
     variableNumero = re.compile(r"^[a-zA-Z]=\d+$")
+    PushPop = re.compile(r'^(push|pop)\s*(t\d+|[a-zA-Z]|l\d+|\d+)')
+
