@@ -7,7 +7,7 @@ from Walker import Walker
 
 
 def main(argv):
-    archivo = "/home/andres/Documents/DHS/DHSBidoneFiesen/DHS/input/opal.txt"
+    archivo = "DHS/input/opal.txt"
     if len(argv) > 1 :
         archivo = argv[1]
     input = FileStream(archivo)
@@ -18,11 +18,11 @@ def main(argv):
     parser.addParseListener(escucha)
     tree = parser.programa()
     #print(tree.toStringTree(recog=parser))
-    #caminante = Walker()
-    #caminante.visitPrograma(tree)
+    caminante = Walker()
+    caminante.visitPrograma(tree)
     #Agregar una lista de declaracion
-    
-
+    #Podemos asignar el valor al momento de declarar la variable.
+    #implementamos el visitor que genera codigo intermedio 
 
 if __name__ == '__main__':
     main(sys.argv)
