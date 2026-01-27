@@ -4,6 +4,7 @@ from compiladoresLexer import compiladoresLexer
 from compiladoresParser import compiladoresParser
 from Escucha import Escucha
 from Walker import Walker
+from Optimizador import Optimizador
 
 
 def main(argv):
@@ -20,6 +21,7 @@ def main(argv):
     #print(tree.toStringTree(recog=parser))
     caminante = Walker()
     caminante.visitPrograma(tree)
+    Optimizador.iniciarOptimizacion()
     #Agregar una lista de declaracion
     #Podemos asignar el valor al momento de declarar la variable.
     #implementamos el visitor que genera codigo intermedio 
