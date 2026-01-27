@@ -1,2 +1,5 @@
 .venv/
 DHS/src/main/python/dhs/.antlr/
+__pycache__/
+*.pyc
+__pycache__/
