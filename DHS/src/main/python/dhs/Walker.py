@@ -34,9 +34,9 @@ class Walker (compiladoresVisitor) :
         #print (ctx.getChild(0).getText()+" - "+ctx.getChild(1))
         #return none
     
-   # def visitBloque(self, ctx:compiladoresParser.BloqueContext):
-    #    print("Nuevo Programa")
-     #   return super().visitInstrucciones(ctx.getChild(1))
+    def visitBloque(self, ctx:compiladoresParser.BloqueContext):
+        print("  [Entrando a bloque]")
+        return self.visitInstrucciones(ctx.getChild(1))
 
     def visitTerminal(self, node):
         print(" ==> Token "+ node.getText())
@@ -52,7 +52,7 @@ class Walker (compiladoresVisitor) :
                 self.visit(child)
 
     def visitInstruccion(self, ctx:compiladoresParser.InstruccionContext):
-    # Despacha a la instrucción específica (declaración, asignación, etc.)
+    
         if ctx.puntoYComa():
             return self.visitPuntoYComa(ctx.puntoYComa())
         elif ctx.iwhile():
@@ -63,7 +63,7 @@ class Walker (compiladoresVisitor) :
             return self.visitIfor(ctx.ifor())
         elif ctx.func():
             return self.visitFunc(ctx.func())
-        elif ctx.IF():  
+        elif ctx.if_():  
             return self.visitIf(ctx.if_())
 
     def visitIwhile(self, ctx:compiladoresParser.IwhileContext):
@@ -87,6 +87,66 @@ class Walker (compiladoresVisitor) :
         
         print("=-"*20)
 
+
+    def visitIf(self, ctx:compiladoresParser.IfContext):
+        print("=-"*20)
+        print("SE ENCONTRO UN IF")
+        print("=-"*20)
+        
+        if ctx.opal():
+            condicion = self.obtenerValor(ctx.opal())
+            print(f"Condición: {condicion}")
+        
+        print("Cuerpo del IF:")
+
+        if ctx.bloque():
+            self.visitBloque(ctx.bloque())
+        else:
+            for i in range(ctx.getChildCount()):
+                child = ctx.getChild(i)
+                if hasattr(child, 'getRuleIndex') and isinstance(child, compiladoresParser.InstruccionContext):
+                    self.visit(child)
+        
+        print("=-"*20)
+
+    def visitIfor(self, ctx:compiladoresParser.IforContext):
+        print("=-"*20)
+        print("SE ENCONTRO UN FOR")
+        print("=-"*20)
+        
+
+        if ctx.asignacion():
+            asignacion = ctx.asignacion().ID().getText()
+            valor= self.obtenerValor(ctx.asignacion().opal())
+            print(asignacion +" = " + f" {valor}")
+
+        if ctx.opal():
+            condicion = self.obtenerValor(ctx.opal())
+            print(f"Condición: {condicion}")
+
+
+        if ctx.paramFor():
+            if ctx.paramFor().asignacion():
+                print("ASIGNACION: ")
+
+
+            if ctx.paramFor().incremento():
+                print("INCREMENTO: ")
+
+            if ctx.paramFor().decremento():
+                print("DECREMENTO: ")
+        
+        print("Cuerpo del For:")
+
+        if ctx.bloque():
+            self.visitBloque(ctx.bloque())
+        else:
+            for i in range(ctx.getChildCount()):
+                child = ctx.getChild(i)
+                if hasattr(child, 'getRuleIndex') and isinstance(child, compiladoresParser.InstruccionContext):
+                    self.visit(child)
+        
+        print("=-"*20)
 
 
     def visitAsignacion(self, ctx:compiladoresParser.AsignacionContext):
