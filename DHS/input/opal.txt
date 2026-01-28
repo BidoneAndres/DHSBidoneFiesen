@@ -1,16 +1,33 @@
-int a , b, c;
-a = 1+1;
+int a, b, c;
 
-while( a <= 2){
+a = 1 + 1;
+
+while(a <= 2) {
     a = 2;
 }
 
-
-for(a = 0 ; a <= 2 ; a=a+2){
+for(a = 0; a <= 2; a = a + 2) {
     a = 2;
 }
 
-
-if( a <= 2){
+if(a <= 7) {
     a = 2;
+} else if(a <= 1) {
+    b = 1;
+}
+
+a++;
+a--;
+
+int suma() {
+    int x, y;
+    x = 5;
+    y = 3;
+    return x + y;
+}
+
+int main() {
+    int resultado;
+    resultado = suma();
+    return resultado;
 }

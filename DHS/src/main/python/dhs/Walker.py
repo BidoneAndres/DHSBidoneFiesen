@@ -6,6 +6,7 @@ class Walker (compiladoresVisitor) :
 
     temporales = 0
     etiquetas = 0
+    codigo_intermedio = []  # Lista para guardar el código de 3 direcciones
 
 
 
@@ -17,6 +18,8 @@ class Walker (compiladoresVisitor) :
         print("--Comienza a caminar--")
         self.visitInstrucciones(ctx.getChild(0))
         print("Fin del Recorrido")
+        # Mostrar el código de 3 direcciones generado
+        self.mostrarCodigoIntermedio()
 
     #Comenzamos con las declaraciones
     #------------------------------------------------------------
@@ -66,14 +69,23 @@ class Walker (compiladoresVisitor) :
         elif ctx.if_():  
             return self.visitIf(ctx.if_())
 
+    
+    
+    #While anda bien
     def visitIwhile(self, ctx:compiladoresParser.IwhileContext):
         print("=-"*20)
         print("SE ENCONTRO UN WHILE")
         print("=-"*20)
         
+     
+        etiqueta_inicio = self.generarEtiqueta()
+        etiqueta_salida = self.generarEtiqueta()
+        self.agregarCodigo(f"{etiqueta_inicio}:")
+        
         if ctx.opal():
             condicion = self.obtenerValor(ctx.opal())
             print(f"Condición: {condicion}")
+            self.agregarCodigo(f"if NOT ({condicion}) goto {etiqueta_salida}")
         
         print("Cuerpo del while:")
 
@@ -85,6 +97,10 @@ class Walker (compiladoresVisitor) :
                 if hasattr(child, 'getRuleIndex') and isinstance(child, compiladoresParser.InstruccionContext):
                     self.visit(child)
         
+       
+        self.agregarCodigo(f"goto {etiqueta_inicio}")
+        self.agregarCodigo(f"{etiqueta_salida}:")
+        
         print("=-"*20)
 
 
@@ -93,9 +109,13 @@ class Walker (compiladoresVisitor) :
         print("SE ENCONTRO UN IF")
         print("=-"*20)
         
+        etiqueta_else = self.generarEtiqueta()
+        etiqueta_fin = self.generarEtiqueta()
+        
         if ctx.opal():
             condicion = self.obtenerValor(ctx.opal())
             print(f"Condición: {condicion}")
+            self.agregarCodigo(f"if NOT ({condicion}) goto {etiqueta_else}")
         
         print("Cuerpo del IF:")
 
@@ -107,6 +127,32 @@ class Walker (compiladoresVisitor) :
                 if hasattr(child, 'getRuleIndex') and isinstance(child, compiladoresParser.InstruccionContext):
                     self.visit(child)
         
+   
+        self.agregarCodigo(f"goto {etiqueta_fin}")
+
+        self.agregarCodigo(f"{etiqueta_else}:")
+        
+        if ctx.else_().ELSE():
+            self.visitElse(ctx.else_())
+        
+ 
+        self.agregarCodigo(f"{etiqueta_fin}:")
+        
+        print("=-"*20)
+
+    def visitElse(self, ctx:compiladoresParser.ElseContext):
+        print("=-"*20)
+        print("SE ENCONTRO UN ELSE")
+        print("=-"*20)
+        
+        if ctx.bloque():
+            print("Cuerpo del ELSE:")
+            self.visitBloque(ctx.bloque())
+        
+        elif ctx.if_():
+            print("ELSE IF:")
+            self.visitIf(ctx.if_())
+        
         print("=-"*20)
 
     def visitIfor(self, ctx:compiladoresParser.IforContext):
@@ -114,30 +160,25 @@ class Walker (compiladoresVisitor) :
         print("SE ENCONTRO UN FOR")
         print("=-"*20)
         
+        etiqueta_inicio = self.generarEtiqueta()
+        etiqueta_salida = self.generarEtiqueta()
 
         if ctx.asignacion():
             asignacion = ctx.asignacion().ID().getText()
             valor= self.obtenerValor(ctx.asignacion().opal())
             print(asignacion +" = " + f" {valor}")
+            self.agregarCodigo(f"{asignacion} = {valor}")
 
+        # Etiqueta de inicio del loop
+        self.agregarCodigo(f"{etiqueta_inicio}:")
+        
         if ctx.opal():
             condicion = self.obtenerValor(ctx.opal())
             print(f"Condición: {condicion}")
-
-
-        if ctx.paramFor():
-            if ctx.paramFor().asignacion():
-                print("ASIGNACION: ")
-
-
-            if ctx.paramFor().incremento():
-                print("INCREMENTO: ")
-
-            if ctx.paramFor().decremento():
-                print("DECREMENTO: ")
+            self.agregarCodigo(f"if NOT ({condicion}) goto {etiqueta_salida}")
         
         print("Cuerpo del For:")
-
+        
         if ctx.bloque():
             self.visitBloque(ctx.bloque())
         else:
@@ -145,6 +186,23 @@ class Walker (compiladoresVisitor) :
                 child = ctx.getChild(i)
                 if hasattr(child, 'getRuleIndex') and isinstance(child, compiladoresParser.InstruccionContext):
                     self.visit(child)
+        
+       
+        if ctx.paramFor():
+            if ctx.paramFor().incremento():
+                var_inc = ctx.paramFor().incremento().ID().getText()
+                self.agregarCodigo(f"{var_inc} = {var_inc} + 1")
+            elif ctx.paramFor().decremento():
+                var_dec = ctx.paramFor().decremento().ID().getText()
+                self.agregarCodigo(f"{var_dec} = {var_dec} - 1")
+            elif ctx.paramFor().asignacion():
+                asig = ctx.paramFor().asignacion().ID().getText()
+                valor_asig = self.obtenerValor(ctx.paramFor().asignacion().opal())
+                self.agregarCodigo(f"{asig} = {valor_asig}")
+
+        self.agregarCodigo(f"goto {etiqueta_inicio}")
+ 
+        self.agregarCodigo(f"{etiqueta_salida}:")
         
         print("=-"*20)
 
@@ -155,15 +213,118 @@ class Walker (compiladoresVisitor) :
         print("=-"*20)
         variable = ctx.ID().getText()
         if ctx.opal():
-            # Procesa la expresión/operación
+            
             valor = self.obtenerValor(ctx.opal())
             print(variable +" = " + f" {valor}")
+            
+            
+            
+            self.agregarCodigo(f"{variable} = {valor}")
+            
         elif ctx.char():
-            # Procesa el carácter
+      
             char_valor = ctx.char().getText()
             print(variable +" = " + f" {char_valor}")
+      
+            self.agregarCodigo(f"{variable} = {char_valor}")
+            
         print("=-"*20)
 
     def obtenerValor(self, ctx):
-        """Extrae el texto/valor de una operación o expresión"""
         return ctx.getText()
+
+    def generarTemporal(self):
+        self.temporales += 1
+        return f"t{self.temporales}"
+
+    def generarEtiqueta(self):
+        self.etiquetas += 1
+        return f"L{self.etiquetas}"
+
+    def visitIncremento(self, ctx:compiladoresParser.IncrementoContext):
+        print("=-"*20)
+        print("SE ENCONTRO UN INCREMENTO")
+        print("=-"*20)
+        var = ctx.ID().getText()
+        print(f"{var}++")
+        self.agregarCodigo(f"{var} = {var} + 1")
+        print("=-"*20)
+
+    def visitDecremento(self, ctx:compiladoresParser.DecrementoContext):
+        print("=-"*20)
+        print("SE ENCONTRO UN DECREMENTO")
+        print("=-"*20)
+        var = ctx.ID().getText()
+        print(f"{var}--")
+        self.agregarCodigo(f"{var} = {var} - 1")
+        print("=-"*20)
+
+    def visitReturn(self, ctx:compiladoresParser.ReturnContext):
+        print("=-"*20)
+        print("SE ENCONTRO UN RETURN")
+        print("=-"*20)
+        if ctx.opal():
+            valor = self.obtenerValor(ctx.opal())
+            print(f"return {valor}")
+            self.agregarCodigo(f"return {valor}")
+        else:
+            print("return")
+            self.agregarCodigo(f"return")
+        print("=-"*20)
+
+    def visitFunc(self, ctx:compiladoresParser.FuncContext):
+        print("=-"*20)
+        print("SE ENCONTRO UNA DEFINICION DE FUNCION")
+        print("=-"*20)
+        tipo = ctx.getChild(0).getText()
+        nombre = ctx.ID().getText()
+        print(f"Función: {tipo} {nombre}()")
+        self.agregarCodigo(f"function {nombre}():")
+        
+        if ctx.bloque():
+            self.visitBloque(ctx.bloque())
+        print("=-"*20)
+
+    def visitCallFunc(self, ctx:compiladoresParser.CallFuncContext):
+        print("=-"*20)
+        print("SE ENCONTRO UNA LLAMADA A FUNCION")
+        print("=-"*20)
+        nombre = ctx.ID().getText()
+        print(f"Llamada: {nombre}()")
+        self.agregarCodigo(f"call {nombre}")
+        print("=-"*20)
+
+    def visitProto(self, ctx:compiladoresParser.ProtoContext):
+        print("=-"*20)
+        print("SE ENCONTRO UN PROTOTIPO")
+        print("=-"*20)
+        tipo = ctx.getChild(0).getText()
+        nombre = ctx.ID().getText()
+        print(f"Prototipo: {tipo} {nombre}()")
+        self.agregarCodigo(f"proto {tipo} {nombre}()")
+        print("=-"*20)
+
+    def agregarCodigo(self, instruccion):
+        self.codigo_intermedio.append(instruccion)
+
+    def mostrarCodigoIntermedio(self):
+        print("\n" + "="*50)
+        print("CÓDIGO DE 3 DIRECCIONES")
+        print("="*50)
+        for i, instruccion in enumerate(self.codigo_intermedio, 1):
+            print(f"{i:3d}. {instruccion}")
+        print("="*50 + "\n")
+        
+
+        self.guardarCodigoIntermedio()
+
+    def guardarCodigoIntermedio(self):
+
+        archivo = "src/main/python/dhs/output/codigo_intermedio.txt"
+        try:
+            with open(archivo, 'w', encoding='utf-8') as f:
+                for i, instruccion in enumerate(self.codigo_intermedio, 1):
+                    f.write(f"{i:3d}. {instruccion}\n")
+            print(f"✓ Código de 3 direcciones guardado en: {archivo}")
+        except Exception as e:
+            print(f"✗ Error al guardar el archivo: {e}")

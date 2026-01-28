@@ -21,7 +21,7 @@ def main(argv):
     #print(tree.toStringTree(recog=parser))
     caminante = Walker()
     caminante.visitPrograma(tree)
-    Optimizador.iniciarOptimizacion()
+    #Optimizador.iniciarOptimizacion()
     #Agregar una lista de declaracion
     #Podemos asignar el valor al momento de declarar la variable.
     #implementamos el visitor que genera codigo intermedio 
