@@ -413,7 +413,7 @@ class Walker (compiladoresVisitor) :
 
     def guardarCodigoIntermedio(self):
 
-        archivo = "src/main/python/dhs/output/codigo_intermedio.txt"
+        archivo = "DHS/src/main/python/dhs/output/codigo_intermedio.txt"
         try:
             with open(archivo, 'w', encoding='utf-8') as f:
                 for i, instruccion in enumerate(self.codigo_intermedio, 1):

@@ -1,39 +1,11 @@
-  1. t1 = 1 + 1
-  2. t2 = a * b
-  3. t3 = t1 + t2
-  4. t4 = b * c
-  5. t5 = t4 * a
-  6. t6 = t3 - t5
-  7. t7 = t6 + 3
-  8. a = t7
-  9. L1:
- 10. if NOT (a<=2) goto L2
- 11. a = 2
- 12. goto L1
- 13. L2:
- 14. a = 0
- 15. L3:
- 16. if NOT (a<=2) goto L4
- 17. a = 2
- 18. a = a+2
- 19. goto L3
- 20. L4:
- 21. if NOT (a<=7) goto L5
- 22. a = 2
- 23. goto L6
- 24. L5:
- 25. if NOT (a<=1) goto L7
- 26. b = 1
- 27. goto L8
- 28. L7:
- 29. L8:
- 30. L6:
- 31. a = a + 1
- 32. a = a - 1
- 33. function suma():
- 34. x = 5
- 35. y = 3
- 36. return x+y
- 37. function main():
- 38. resultado = suma()
- 39. return resultado
+  1. function calculo():
+  2. a = 10
+  3. b = 20
+  4. c = 5
+  5. t1 = b * c
+  6. t2 = a + t1
+  7. resultado = t2
+  8. return resultado
+  9. function main():
+ 10. resultado = calculo()
+ 11. return resultado
