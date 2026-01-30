@@ -169,7 +169,6 @@ class Walker (compiladoresVisitor) :
             print(asignacion +" = " + f" {valor}")
             self.agregarCodigo(f"{asignacion} = {valor}")
 
-        # Etiqueta de inicio del loop
         self.agregarCodigo(f"{etiqueta_inicio}:")
         
         if ctx.opal():
@@ -213,12 +212,11 @@ class Walker (compiladoresVisitor) :
         print("=-"*20)
         variable = ctx.ID().getText()
         if ctx.opal():
-            
-            valor = self.obtenerValor(ctx.opal())
+           
+            valor = self.procesarOpal(ctx.opal())
             print(variable +" = " + f" {valor}")
             
-            
-            
+         
             self.agregarCodigo(f"{variable} = {valor}")
             
         elif ctx.char():
@@ -229,6 +227,101 @@ class Walker (compiladoresVisitor) :
             self.agregarCodigo(f"{variable} = {char_valor}")
             
         print("=-"*20)
+
+    def procesarOpal(self, ctx:compiladoresParser.OpalContext):
+        
+        if ctx.exp():
+            return self.procesarExp(ctx.exp())
+        elif ctx.oplo():
+            return self.procesarOplo(ctx.oplo())
+        elif ctx.callFunc():
+            return self.procesarCallFunc(ctx.callFunc())
+        return ctx.getText()
+
+    def procesarExp(self, ctx:compiladoresParser.ExpContext):
+    
+        resultado = self.procesarTerm(ctx.term())
+        
+        # Procesar la cadena de sumas/restas
+        if ctx.e():
+            resultado = self.procesarE(ctx.e(), resultado)
+        
+        return resultado
+
+    def procesarE(self, ctx:compiladoresParser.EContext, izquierda):
+    
+        while ctx is not None and ctx.term() is not None:
+            operador = "+" if ctx.SUMA() else "-"
+            derecha = self.procesarTerm(ctx.term())
+            
+            # Generar temporal para la operación binaria
+            temporal = self.generarTemporal()
+            self.agregarCodigo(f"{temporal} = {izquierda} {operador} {derecha}")
+            
+            izquierda = temporal
+            
+            # Procesar el siguiente nivel
+            if ctx.e():
+                ctx = ctx.e()
+            else:
+                ctx = None
+        
+        return izquierda
+
+    def procesarTerm(self, ctx:compiladoresParser.TermContext):
+
+        resultado = self.procesarFactor(ctx.factor())
+        
+        # Procesar la cadena de mult/div/mod
+        if ctx.t():
+            resultado = self.procesarT(ctx.t(), resultado)
+        
+        return resultado
+
+    def procesarT(self, ctx:compiladoresParser.TContext, izquierda):
+
+        while ctx is not None and ctx.factor() is not None:
+            if ctx.MULT():
+                operador = "*"
+            elif ctx.DIV():
+                operador = "/"
+            elif ctx.MOD():
+                operador = "%"
+            else:
+                operador = "*"
+            
+            derecha = self.procesarFactor(ctx.factor())
+            
+            temporal = self.generarTemporal()
+            self.agregarCodigo(f"{temporal} = {izquierda} {operador} {derecha}")
+            
+            izquierda = temporal
+            
+
+            if ctx.t():
+                ctx = ctx.t()
+            else:
+                ctx = None
+        
+        return izquierda
+
+    def procesarFactor(self, ctx:compiladoresParser.FactorContext):
+        """Procesa factor: NUMERO | ID | PA exp PC"""
+        if ctx.NUMERO():
+            return ctx.NUMERO().getText()
+        elif ctx.ID():
+            return ctx.ID().getText()
+        elif ctx.exp():
+            return self.procesarExp(ctx.exp())
+        return ctx.getText()
+
+    def procesarOplo(self, ctx:compiladoresParser.OploContext):
+        """Procesa operación lógica"""
+        return ctx.getText()
+
+    def procesarCallFunc(self, ctx:compiladoresParser.CallFuncContext):
+        """Procesa llamada a función"""
+        return ctx.getText()
 
     def obtenerValor(self, ctx):
         return ctx.getText()
