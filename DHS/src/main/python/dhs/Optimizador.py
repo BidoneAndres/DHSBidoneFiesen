@@ -6,67 +6,84 @@ class Optimizador:
     @staticmethod
     def contarUsos(lineas):
         usos = {}
+        print("\n--- Contando usos de variables ---\n")
         for linea in lineas:
             texto = re.sub(r'^\s*\d+\.\s*', '', linea)
             m = Constante.asignacion.match(texto)
             if m: texto = m.group(2)
             for v in Constante.usoVariable.findall(texto):
                 usos[v] = usos.get(v, 0) + 1
+                print(f"  Variable '{v}' usada {usos[v]} veces.")
+        print("\n--- Conteo de usos completado ---\n")
         return usos
 
     @classmethod
     def optimizar(cls, lineas_codigo):
+        print("\n--- Iniciando optimización ---\n")
         codigo = []
         tabla = {}
         usos = cls.contarUsos(lineas_codigo)
         etiquetas_vistas = set()
 
         for linea in lineas_codigo:
+            
+            # Limpiar número de línea
             instr = re.sub(r'^\s*\d+\.\s*', '', linea).strip()
-            if not instr: continue
-
+            print(f"Procesando instrucción: {instr}")
+            if not instr: 
+                print("Línea vacía, saltando...")
+                continue
+            
+            # Reiniciar tabla en funciones y etiquetas
             if Constante.nombreFuncion.match(instr) or Constante.etiqueta.match(instr):
                 tabla.clear()
                 etiquetas_vistas.clear()
                 codigo.append(instr)
+                print(f"Manteniendo función/etiqueta: {instr}")
                 continue
-
+            
+            # Mantener registro de etiquetas vistas
             if instr.startswith("goto"):
                 destino = instr.split()[1]
                 if destino in etiquetas_vistas: tabla.clear()
                 codigo.append(instr)
+                print(f"Manteniendo GOTO: {instr}")
                 continue
-
+            
+            # Registro de etiquetas vistas
             m = Constante.asignacion.match(instr)
             if m:
                 var = m.group(1).strip()
                 exp = m.group(2).strip()
 
-                # 1. Propagación de constantes
                 for v, val in tabla.items():
                     exp = re.sub(rf'\b{v}\b', str(val), exp)
 
-                # 2. Identidades Algebraicas (Suma, Resta, Mult, Div)
+                # Algebraicas (Suma, Resta, Mult, Div)
                 exp = re.sub(r'\b(\w+)\s*[\+\-]\s*0\b', r'\1', exp)
                 exp = re.sub(r'\b0\s*\+\s*(\w+)\b', r'\1', exp)
                 exp = re.sub(r'\b(\w+)\s*[\*/]\s*1\b', r'\1', exp)
                 exp = re.sub(r'\b1\s*\*\s*(\w+)\b', r'\1', exp)
                 exp = re.sub(r'\b(\w+)\s*\*\s*0\b', '0', exp)
-
-                # 3. Constant Folding (Manejo de Floats a Ints)
+                
+                # Evaluación de Constantes
                 # Buscamos patrones de operación numérica
                 if re.fullmatch(r'[0-9+\-*/().\s%]+', exp):
                     try:
                         res = eval(exp)
-                        # Si es 2.0 -> lo volvemos 2
                         exp = str(int(res)) if isinstance(res, float) and res.is_integer() else str(res)
-                    except: pass
+                        print(f"Evaluando expresión constante: {exp}")
+                    except: 
+                        print(f"Error al evaluar expresión: {exp}")
+                        pass
 
-                # 4. Inline de Temporales (Evita que queden t2, t7 sueltos)
+                # Eliminación de asignaciones a temporales no usados
                 if var.startswith("t") and usos.get(var, 0) <= 1:
                     tabla[var] = exp
                     # Si es constante pura, no escribimos la línea
-                    if re.fullmatch(r'[+-]?\d+(\.\d+)?', exp): continue
+                    if re.fullmatch(r'[+-]?\d+(\.\d+)?', exp): 
+                        print(f"Eliminando asignación a temporal no usado: {var} = {exp}")
+                        continue
 
                 # Guardar constantes en tabla
                 if re.fullmatch(r'[+-]?\d+(\.\d+)?', exp):
@@ -75,15 +92,17 @@ class Optimizador:
                     tabla.pop(var, None)
 
                 codigo.append(f"{var} = {exp}")
+                print(f"Optimizando asignación: {var} = {exp}")
                 continue
 
-            # Bloque IF NOT
+            # Bloque IF 
             m_if = Constante.ifNot.match(instr)
             if m_if:
                 cond, label = m_if.groups()
                 for v, val in tabla.items():
                     cond = re.sub(rf'\b{v}\b', str(val), cond)
                 codigo.append(f"if NOT ({cond}) goto {label}")
+                print(f"Manteniendo IF optimizado: if NOT ({cond}) goto {label}")
                 continue
 
             # Bloque RETURN
@@ -92,32 +111,34 @@ class Optimizador:
                 for v, val in tabla.items():
                     ret = re.sub(rf'\b{v}\b', str(val), ret)
                 codigo.append(f"return {ret}")
+                print(f"Manteniendo RETURN optimizado: return {ret}")
                 continue
 
             codigo.append(instr)
+        print("\n --- Optimización completa ---")
         return codigo
 
     @staticmethod
-    def eliminar_codigo_muerto_avanzado(codigo):
+    def eliminar_codigo_muerto(codigo):
+        print("\n--- Eliminando código muerto ---\n")
         # Limpiar números de línea
         lineas_limpias = [re.sub(r'^\s*\d+\.\s*', '', l).strip() for l in codigo]
         
         vivas = set()
         resultado_indices = []
         
-        # Analizamos de abajo hacia arriba
         for i in range(len(lineas_limpias) - 1, -1, -1):
             instr = lineas_limpias[i]
             
-            # Si es el inicio de una función, reseteamos porque las variables locales mueren aquí
             if instr.startswith("function"):
                 vivas.clear()
                 resultado_indices.append(i)
+                print(f"Manteniendo inicio de función: {instr}")
                 continue
 
-            # Las etiquetas NO deben resetear 'vivas' para poder optimizar entre bloques
             if Constante.etiqueta.match(instr):
                 resultado_indices.append(i)
+                print(f"Manteniendo etiqueta: {instr}")
                 continue
 
             m = Constante.asignacion.match(instr)
@@ -125,17 +146,16 @@ class Optimizador:
                 var_destino = m.group(1).strip()
                 exp_origen = m.group(2).strip()
                 
-                # REGLA DE ORO: Si la variable no está en 'vivas', la definición es inútil
                 if var_destino in vivas:
                     resultado_indices.append(i)
-                    vivas.remove(var_destino) # Ya no está "viva" hacia atrás porque aquí nace
-                    # Pero sus componentes sí están vivos ahora
+                    vivas.remove(var_destino)
+                    print(f"Manteniendo asignación a variable viva en línea {i+1}: {instr}")
                     vivas.update(Constante.usoVariable.findall(exp_origen))
                 elif not var_destino.startswith("t") and i == len(lineas_limpias)-1:
-                    # Mantener solo si es la última asignación de una variable de usuario
+                    print(f"Eliminando asignación a variable no usada en línea {i+1}: {instr}")
                     resultado_indices.append(i)
                 else:
-                    # ¡BORRADO! (No se agrega a resultado_indices)
+                    print(f"Eliminando código muerto en línea {i+1}: {instr}")
                     continue
             else:
                 # Ifs, Gotos y Returns mantienen vivas a sus variables
@@ -143,86 +163,69 @@ class Optimizador:
                 resultado_indices.append(i)
 
         resultado_indices.reverse()
+        print("\n--- Código muerto eliminado ---")
         return [codigo[i] for i in resultado_indices]
-
-    @staticmethod
-    def eliminar_incrementos_inversos(codigo):
-        # Esta versión detecta el patrón TAC: t=a+1, a=t, t2=a-1, a=t2
-        lineas = [re.sub(r'^\s*\d+\.\s*', '', l).strip() for l in codigo]
-        res = []
-        skip = 0
-        for i in range(len(lineas)):
-            if skip > 0:
-                skip -= 1
-                continue
-            if i < len(lineas) - 3:
-                # Patrón complejo de incremento/decremento en TAC
-                m1 = re.match(r't\d+\s*=\s*(\w+)\s*\+\s*1', lineas[i])
-                m2 = re.match(r'(\w+)\s*=\s*t\d+', lineas[i+1])
-                m3 = re.match(r't\d+\s*=\s*(\w+)\s*-\s*1', lineas[i+2])
-                m4 = re.match(r'(\w+)\s*=\s*t\d+', lineas[i+3])
-                if m1 and m2 and m3 and m4 and m1.group(1) == m2.group(1) == m3.group(1) == m4.group(1):
-                    skip = 3
-                    continue
-            res.append(codigo[i])
-        return res
-
+   
     @staticmethod
     def optimizar_saltos(codigo):
+        print("\n--- Optimizando saltos ---")
         # Limpiar números de línea
         lineas = [re.sub(r'^\s*\d+\.\s*', '', l).strip() for l in codigo]
         
-        # 1. Mapa de Redirección (Jump Threading)
-        # Si L5: goto L6, entonces cualquier goto L5 se convierte en goto L6
-        # Si L7: L8:, entonces L7 es lo mismo que L8
+        # Mapa de Redirección (Jump Threading)
         redireccion = {}
         for i in range(len(lineas) - 1):
             m_etiq = re.match(r'^(\w+):$', lineas[i])
             if m_etiq:
                 etiq_actual = m_etiq.group(1)
-                # Caso A: Etiqueta seguida de otra etiqueta
+                # Eliminación de etiquetas en Cadena
                 m_next_etiq = re.match(r'^(\w+):$', lineas[i+1])
                 if m_next_etiq:
                     redireccion[etiq_actual] = m_next_etiq.group(1)
-                # Caso B: Etiqueta seguida de un goto directo
+                # Eliminación de Saltos en Cadena
                 m_next_goto = re.match(r'^goto\s+(\w+)$', lineas[i+1])
                 if m_next_goto:
                     redireccion[etiq_actual] = m_next_goto.group(1)
-
+        
+        print(f"Redirecciones encontradas: {redireccion}")
+        # Aplicar redirecciones y eliminar saltos innecesarios
         temp_resultado = []
         for i, instr in enumerate(lineas):
-            # A. Redirigir todos los GOTOs (incluyendo los de los IF)
+            # Redirigir todos los GOTOs (incluyendo los de los IF)
             m_any_goto = re.search(r'goto\s+(\w+)', instr)
             if m_any_goto:
                 dest = m_any_goto.group(1)
                 while dest in redireccion:
                     dest = redireccion[dest]
+                    print(f"Redirigiendo salto a {dest}")
                 instr = re.sub(r'goto\s+\w+', f'goto {dest}', instr)
 
-            # B. Eliminar saltos a la línea siguiente (Peephole)
-            # goto L6
-            # L6:  <-- El goto es inútil
+            # Eliminar saltos a la línea siguiente (Peephole)
             m_goto_simple = re.match(r'^goto\s+(\w+)$', instr)
             if m_goto_simple and i + 1 < len(lineas):
                 if f"{m_goto_simple.group(1)}:" == lineas[i+1]:
+                    print(f"Eliminando salto innecesario en línea {i+1}: {instr}")
                     continue
             
-            # C. Eliminar IFs que saltan a la línea siguiente
+            # Eliminar los IF que saltan a la línea siguiente
             m_if_simple = re.match(r'^if NOT\s*\(.*\)\s*goto\s+(\w+)$', instr)
             if m_if_simple and i + 1 < len(lineas):
                 if f"{m_if_simple.group(1)}:" == lineas[i+1]:
+                    print(f"Eliminando IF innecesario en línea {i+1}: {instr}")
                     continue
 
             temp_resultado.append(instr)
 
-        # 2. Limpieza de etiquetas huérfanas
+        # Limpieza de etiquetas innecesarias
         usadas = set(re.findall(r'goto\s+(\w+)', "\n".join(temp_resultado)))
         final = []
         for l in temp_resultado:
             m_etiq = re.match(r'^(\w+):$', l)
             if m_etiq and m_etiq.group(1) not in usadas:
+                print(f"Eliminando etiqueta innecesaria: {l}")
                 continue
             final.append(l)
+        print("\n--- Optimización de saltos completada ---\n")
         return final
     
     @classmethod
@@ -230,12 +233,13 @@ class Optimizador:
         with open(archivo_entrada, 'r', encoding='utf-8') as f:
             resultado = f.readlines()
 
-        for _ in range(10): # Dale 10 pasadas para que quede "flama"
+        for _ in range(7):
+            print(f"\n--- Iteración de optimización {_ + 1} ---\n")
             resultado = cls.optimizar(resultado)
-            resultado = cls.optimizar_saltos(resultado) # <--- Aquí dentro
-            resultado = cls.eliminar_codigo_muerto_avanzado(resultado)
+            resultado = cls.optimizar_saltos(resultado)
+            resultado = cls.eliminar_codigo_muerto(resultado)
 
         with open(archivo_salida, 'w', encoding='utf-8') as f:
             for i, linea in enumerate(resultado, 1):
                 f.write(f"{i:3d}. {linea}\n")
-        print("✔ Optimización profunda finalizada con éxito.")
+        print("\n---Optimización finalizada con éxito ---\n")
