@@ -7,6 +7,7 @@ class TipoDato(Enum):
         BOOLEAN = 'bool' 
         DOUBLE = 'double'
         CHAR = 'char'
+        ERROR = 'error'
 
 class ID():
     
@@ -24,11 +25,12 @@ class ID():
          return self.usado == 1
 
 class Variable(ID):
-    def __init__(nombre,tipoDatoVariable,inicializado,usado):
-        super.__init__(nombre,tipoDatoVariable,inicializado,usado)
+    def __init__(self, nombre, tipoDatoVariable, inicializado=0, usado=0):
+        super().__init__(nombre, tipoDatoVariable, inicializado, usado)
+
 
 
 class Funcion(ID):
-    def __init__(self,nombre,tipoDato,inicializado,usado,args):
-        super.__init__(nombre,tipoDato,inicializado,usado)
-        self.args=args
+    def __init__(self, nombre, tipoDato, args):
+        super().__init__(nombre, tipoDato, 1, 0)
+        self.args = args

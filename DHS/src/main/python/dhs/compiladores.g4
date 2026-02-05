@@ -13,6 +13,7 @@ COM : ',';
 
 
 WHILE :'while';
+FLOAT_LITERAL : DIGITO+ '.' DIGITO+ ;
 NUMERO : DIGITO+ ;
 FOR : 'for';
 IF: 'if';
@@ -144,7 +145,8 @@ t : MULT factor t
     |
     ;
 
-factor : NUMERO
+factor : FLOAT_LITERAL
+       | NUMERO
        | ID
        | PA exp PC
       ;
