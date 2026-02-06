@@ -81,8 +81,8 @@ class Optimizador:
                 # Si la expresión es puramente numérica (ej: 5 + 10), la resuelve.
                 if re.fullmatch(r'[0-9+\-*/().\s%]+', exp):
                     try:
-                        res = eval(exp)
-                        exp = str(int(res)) if isinstance(res, float) and res.is_integer() else str(res)
+                        res = eval(exp) # Evaluar la expresión numérica 
+                        exp = str(int(res)) if isinstance(res, float) and res.is_integer() else str(res) 
                         print(f"Evaluando expresión constante: {exp}")
                     except: 
                         print(f"Error al evaluar expresión: {exp}")
@@ -109,12 +109,36 @@ class Optimizador:
                 print(f"Optimizando asignación: {var} = {exp}")
                 continue
 
-            # OPTIMIZACIÓN DE IF: Propaga constantes dentro de la condición
             m_if = Constante.ifNot.match(instr)
             if m_if:
                 cond, label = m_if.groups()
+    
+                # 1. Propagar constantes en la condición
                 for v, val in tabla.items():
                     cond = re.sub(rf'\b{v}\b', str(val), cond)
+    
+                    # 2. Intentar resolver la condición si ya no tiene variables
+                    # Reemplazamos operadores de C/Java por Python para poder usar eval()
+                    cond_python = cond.replace("&&", " and ").replace("||", " or ").replace("!", " not ")
+    
+                    # Si la condición ahora solo tiene números y operadores lógicos
+                    if re.fullmatch(r'[0-9+\-*/().\s><=!|&]+', cond):
+                        try:
+            # Evaluamos la condición. 
+            # Si 'if NOT (cond)' es verdadero, saltamos siempre.
+            # Si 'if NOT (cond)' es falso, nunca saltamos (se elimina la línea).
+                            resultado_cond = eval(cond_python)
+            
+                            if not resultado_cond: # El 'NOT' de tu instrucción
+                                print(f"Condición siempre FALSA: if NOT ({cond}) -> GOTO {label} forzado")
+                                codigo.append(f"goto {label}")
+                            else:
+                                print(f"Condición siempre VERDADERA: if NOT ({cond}) -> Se elimina el salto")
+                # No agregamos nada al código (cae por su propio peso al bloque siguiente)
+                            continue
+                        except:
+                            pass
+
                 codigo.append(f"if NOT ({cond}) goto {label}")
                 print(f"Manteniendo IF optimizado: if NOT ({cond}) goto {label}")
                 continue
@@ -222,7 +246,7 @@ class Optimizador:
                 dest = m_any_goto.group(1)
                 while dest in redireccion:
                     dest = redireccion[dest]
-                    print(f"Redirigiendo salto a {dest}")
+                    print(f"Redirigiendo salto a {dest}resultado")
                 instr = re.sub(r'goto\s+\w+', f'goto {dest}', instr)
 
             # PEEPHOLE: Si un GOTO salta a la línea inmediatamente siguiente, es basura.          
@@ -263,6 +287,7 @@ class Optimizador:
             resultado = cls.optimizar(resultado)
             resultado = cls.optimizar_saltos(resultado)
             resultado = cls.eliminar_codigo_muerto(resultado)
+
 
         with open(archivo_salida, 'w', encoding='utf-8') as f:
             for i, linea in enumerate(resultado, 1):

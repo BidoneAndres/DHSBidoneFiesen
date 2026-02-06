@@ -32,16 +32,16 @@
  32. b = b+1
  33. goto L3
  34. L4:
- 35. if NOT (a>50) goto L5
- 36. resultado = 1
- 37. goto L6
- 38. L5:
- 39. if NOT (c==9) goto L7
- 40. resultado = 2
- 41. goto L8
- 42. L7:
- 43. resultado = 0
- 44. L8:
- 45. L6:
- 46. resultado = calcular_suma()
+ 35. c = 9
+ 36. if NOT (a>50) goto L5
+ 37. resultado = 1
+ 38. goto L6
+ 39. L5:
+ 40. if NOT (c==9) goto L7
+ 41. resultado = calcular_suma()
+ 42. goto L8
+ 43. L7:
+ 44. resultado = 0
+ 45. L8:
+ 46. L6:
  47. return resultado

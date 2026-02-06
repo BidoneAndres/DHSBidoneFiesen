@@ -4,12 +4,22 @@
   4. a = 6
   5. L1:
   6. if NOT (a<=10) goto L2
-  7. goto L1
-  8. L2:
-  9. b = 0
- 10. L3:
- 11. if NOT (b<5) goto L4
- 12. goto L3
- 13. L4:
- 14. resultado = calcular_suma()
- 15. return resultado
+  7. t10 = a + 2
+  8. a = t10
+  9. goto L1
+ 10. L2:
+ 11. b = 0
+ 12. L3:
+ 13. if NOT (b<5) goto L4
+ 14. goto L3
+ 15. L4:
+ 16. c = 9
+ 17. if NOT (a>50) goto L5
+ 18. goto L6
+ 19. L5:
+ 20. if NOT (c==9) goto L7
+ 21. goto L6
+ 22. L7:
+ 23. resultado = 0
+ 24. L6:
+ 25. return resultado
