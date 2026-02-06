@@ -1,6 +1,7 @@
 int a, b, c;
 int resultado;
 
+
 int calcular_suma() {
     int x, y, z;
     x = 10;
