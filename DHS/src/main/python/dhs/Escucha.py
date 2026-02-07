@@ -8,10 +8,10 @@ from Id import ID,TipoDato
 
 class Escucha(compiladoresListener) :
 
+    def __init__(self):
+        self.hubo_error = False
 
     TablaSimbolos = TablaSimbolos()    
-
-    
     numTokens = 0
     numNode = 0
 
@@ -67,14 +67,17 @@ class Escucha(compiladoresListener) :
 
         if pa == None :
             print( "ERROR, se espera un '(' " )
+            self.hubo_error = True
             return None
 
         if pc == None :
             print ( "ERROR, se espera un ')'" )
+            self.hubo_error = True
             return None
         
         if opal == None : 
             print ( "ERROR, se espera una operacion aritmetica o logica")
+            self.hubo_error = True
             return None
         #En el caso de tenerlos tenemos que comprobar si tenemos el opal.
 
@@ -97,14 +100,17 @@ class Escucha(compiladoresListener) :
         print ("Entra")
         if pa == None :
             print( "ERROR, se espera un '(' " )
+            self.hubo_error = True
             return None
 
         if pc == None :
             print ( "ERROR, se espera un ')'" )
+            self.hubo_error = True
             return None
         
         if opal == None : 
             print ( "ERROR, se espera una operacion aritmetica o logica")
+            self.hubo_error = True
         return super().exitIf(ctx)
     # -----------------------------------------------------------
     
@@ -124,18 +130,22 @@ class Escucha(compiladoresListener) :
         
         if pa == None :
             print( "ERROR, se espera un '(' " )
+            self.hubo_error = True
             return None
 
         if pc == None :
             print ( "ERROR, se espera un ')'" )
+            self.hubo_error = True
             return None
         
         if opal == None : 
             print ( "ERROR, se espera una operacion aritmetica o logica")
+            self.hubo_error = True
             return None
         
         if asig == None :
             print( "ERROR, se espera una asignacion " )
+            self.hubo_error = True
             return None
         
         return super().exitIf(ctx)
@@ -179,9 +189,11 @@ class Escucha(compiladoresListener) :
         
                     TablaSimbolos.addIdentificador(TablaSimbolos, nombre, tipoDato)
                 else: 
-                    print ("---> El id ya esta en uso...")
+                    print(f"ERROR SEMÁNTICO: El identificador '{nombre}' ya está en uso.")
+                    self.hubo_error = True
             else :
-               print ("---> El id ya esta en uso...")
+                print(f"ERROR SEMÁNTICO: El identificador '{nombre}' ya está en uso.")
+                self.hubo_error = True
 
             i = i + 2
 
@@ -231,6 +243,7 @@ class Escucha(compiladoresListener) :
             if simbolo == 1:
                 print(f"ERROR, variable no declarada: {nombre}")
                 ctx.tipoDato = TipoDato.ERROR
+                self.hubo_error = True
                 return
 
         tipo_lhs = simbolo.tipoDato
@@ -268,6 +281,7 @@ class Escucha(compiladoresListener) :
         if tipo_lhs != tipo_rhs:
             print(f"ERROR de tipos: no se puede asignar {tipo_rhs} a {tipo_lhs}")
             ctx.tipoDato = TipoDato.ERROR
+            self.hubo_error = True
             return
 
         # =========================
@@ -332,7 +346,7 @@ class Escucha(compiladoresListener) :
         listaParametros = []
 
         if buscarGlobal == 1:
-            print ( "ERROR, la funcion no tiene declarado un prototipo" )
+            print ( "ADVERTENCIA, la funcion no tiene declarado un prototipo" )
             return None;
         parametros = ctx.var_func()
 
@@ -385,6 +399,7 @@ class Escucha(compiladoresListener) :
         if buscarGlobal == 1 :
 
             parametros = ctx.var_func()
+            self.hubo_error = True
 
             if parametros and parametros.getChildCount() > 0:
                 
@@ -439,11 +454,13 @@ class Escucha(compiladoresListener) :
                 if busqueda == 1:
                     print("ERROR, variable no existente:", nombre)
                     ctx.tipoDato = TipoDato.ERROR
+                    self.hubo_error = True
                     return
 
             if busqueda.inicializado != 1:
                 print("ERROR, la variable no ha sido inicializada:", nombre)
                 ctx.tipoDato = TipoDato.ERROR
+                self.hubo_error = True
                 return
 
             busqueda.usado = 1
@@ -494,6 +511,7 @@ class Escucha(compiladoresListener) :
         if comprobarGlobal == 1 :
 
             print("ERROR, la funcion no esta definida")
+            self.hubo_error = True
             return None
         
         
@@ -637,6 +655,7 @@ class Escucha(compiladoresListener) :
         if tipo_izq != tipo_der:
             print("ERROR de tipos en multiplicacion:", tipo_izq, "y", tipo_der)
             ctx.tipoDato = tipo_izq
+            self.hubo_error = True
             return
 
         ctx.tipoDato = tipo_izq

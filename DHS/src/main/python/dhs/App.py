@@ -8,7 +8,7 @@ from Optimizador import Optimizador
 
 
 def main(argv):
-    archivo = "DHS/input/opal.txt"
+    archivo = "../../../../input/opal.txt"
     if len(argv) > 1 :
         archivo = argv[1]
     input = FileStream(archivo)
@@ -18,6 +18,9 @@ def main(argv):
     escucha = Escucha()
     parser.addParseListener(escucha)
     tree = parser.programa()
+    if escucha.hubo_error:
+        print("\n[!] La compilación falló debido a errores semánticos. No se generará código.")
+        return
     #print(tree.toStringTree(recog=parser))
     caminante = Walker()
     caminante.visitPrograma(tree)
