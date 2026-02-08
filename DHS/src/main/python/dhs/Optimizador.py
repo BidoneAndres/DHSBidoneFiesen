@@ -74,7 +74,7 @@ class Optimizador:
                 
                 # PLEGAMIENTO DE CONSTANTES (Constant Folding): 
                 # Si la expresión es puramente numérica (ej: 5 + 10), la resuelve.
-                if re.fullmatch(r'[0-9+\-*/().\s%]+', exp):
+                if re.fullmatch(r'^\s*\d+(\.\d+)?\s*[+\-*/%]\s*\d+(\.\d+)?\s*$', exp):
                     try:
                         print(f"Evaluando expresión constante: {exp}")
                         res = eval(exp) # Evaluar la expresión numérica
@@ -103,7 +103,7 @@ class Optimizador:
                     tabla.pop(var, None)
 
                 codigo.append(f"{var} = {exp}")
-                print(f"Optimizando asignación: {var} = {exp}")
+                print(f"Optimizando Final: {var} = {exp}")
                 continue
 
             # OPTIMIZACIÓN DE IF: Propaga constantes dentro de la condición
@@ -150,6 +150,7 @@ class Optimizador:
         for linea in lineas:
             if "if" in linea or "return" in linea:
                 for v in Constante.usoVariable.findall(linea):
+                    print(f"Variable '{v}' marcada como siempre viva por uso en: {linea.strip()}")
                     siempre_vivas.add(v)
     
         codigo_limpio = []
@@ -165,6 +166,7 @@ class Optimizador:
             # Por seguridad, "resucitamos" las variables que sabemos que son importantes.
             if ":" in instr:
                 for v in siempre_vivas:
+                    print(f"Resucitando variable '{v}' por etiqueta: {instr}")
                     variables_vivas.add(v)
                 codigo_limpio.append(instr)
                 continue
@@ -183,11 +185,13 @@ class Optimizador:
                 # 'var' sale porque aquí se define, las de 'exp' entran porque se usan
                 variables_vivas.discard(var)
                 for v in Constante.usoVariable.findall(exp):
+                    print(f"  Variable '{v}' se mantiene viva por uso en: {instr}")
                     variables_vivas.add(v)
                 codigo_limpio.append(instr)
             else:
                 # Si es un goto o función, sus variables están vivas
                 for v in Constante.usoVariable.findall(instr):
+                    print(f"  Variable '{v}' se mantiene viva por uso en: {instr}")
                     variables_vivas.add(v)
                 codigo_limpio.append(instr)
             

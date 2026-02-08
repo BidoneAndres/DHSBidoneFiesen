@@ -1,6 +1,6 @@
 int a, b, c;
 int resultado;
-
+int calcular_suma();
 
 int calcular_suma() {
     int x, y, z;
@@ -14,11 +14,11 @@ int main() {
 
     b = 2;
     c = 4;
-    a = (1 + 1) * b + (c / 2) - 0;
+    a = b + c;
     
 
-    a = a + 1;
-    a = a - 1;
+    a = b + 1;
+    a = 8 - 1;
 
 
     while (a <= 10) {

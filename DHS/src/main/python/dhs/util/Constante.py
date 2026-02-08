@@ -31,4 +31,6 @@ class Constante:
     # =========================
     # VARIABLES
     # =========================
-    usoVariable = re.compile(r'\b([a-zA-Z_]\w*)\b')
+    #usoVariable = re.compile(r'\b([a-zA-Z_]\w*)\b')
+    # Regex con Negative Lookahead
+    usoVariable = re.compile(r'\b(?!(?:if|NOT|return|goto|L\d+)\b)([a-zA-Z_]\w*)\b')

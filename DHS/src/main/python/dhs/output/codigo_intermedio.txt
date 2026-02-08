@@ -1,47 +1,44 @@
-  1. function calcular_suma():
-  2. x = 10
-  3. y = 20
-  4. t1 = x + y
-  5. t2 = t1 + 5
-  6. z = t2
-  7. return z
-  8. function main():
-  9. b = 2
- 10. c = 4
- 11. t3 = 1 + 1
- 12. t4 = t3 * b
- 13. t5 = c / 2
- 14. t6 = t4 + t5
- 15. t7 = t6 - 0
- 16. a = t7
- 17. t8 = a + 1
- 18. a = t8
- 19. t9 = a - 1
- 20. a = t9
- 21. L1:
- 22. if NOT (a<=10) goto L2
- 23. t10 = a + 2
- 24. a = t10
- 25. goto L1
- 26. L2:
- 27. b = 0
- 28. L3:
- 29. if NOT (b<5) goto L4
- 30. t11 = c + 1
- 31. c = t11
- 32. b = b+1
- 33. goto L3
- 34. L4:
- 35. if NOT (a>50) goto L5
- 36. resultado = 1
- 37. goto L6
- 38. L5:
- 39. if NOT (c==9) goto L7
- 40. resultado = 2
- 41. goto L8
- 42. L7:
- 43. resultado = 0
- 44. L8:
- 45. L6:
- 46. resultado = calcular_suma()
- 47. return resultado
+  1. proto int calcular_suma()
+  2. function calcular_suma():
+  3. x = 10
+  4. y = 20
+  5. t1 = x + y
+  6. t2 = t1 + 5
+  7. z = t2
+  8. return z
+  9. function main():
+ 10. b = 2
+ 11. c = 4
+ 12. t3 = b + c
+ 13. a = t3
+ 14. t4 = b + 1
+ 15. a = t4
+ 16. t5 = 8 - 1
+ 17. a = t5
+ 18. L1:
+ 19. if NOT (a<=10) goto L2
+ 20. t6 = a + 2
+ 21. a = t6
+ 22. goto L1
+ 23. L2:
+ 24. b = 0
+ 25. L3:
+ 26. if NOT (b<5) goto L4
+ 27. t7 = c + 1
+ 28. c = t7
+ 29. b = b+1
+ 30. goto L3
+ 31. L4:
+ 32. if NOT (a>50) goto L5
+ 33. resultado = 1
+ 34. goto L6
+ 35. L5:
+ 36. if NOT (c==9) goto L7
+ 37. resultado = 2
+ 38. goto L8
+ 39. L7:
+ 40. resultado = 0
+ 41. L8:
+ 42. L6:
+ 43. resultado = calcular_suma()
+ 44. return resultado
