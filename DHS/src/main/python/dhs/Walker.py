@@ -83,7 +83,7 @@ class Walker (compiladoresVisitor) :
         self.agregarCodigo(f"{etiqueta_inicio}:")
         
         if ctx.opal():
-            condicion = self.obtenerValor(ctx.opal())
+            condicion = self.procesarOpal(ctx.opal())
             print(f"Condición: {condicion}")
             self.agregarCodigo(f"if NOT ({condicion}) goto {etiqueta_salida}")
         
@@ -113,7 +113,7 @@ class Walker (compiladoresVisitor) :
         etiqueta_fin = self.generarEtiqueta()
         
         if ctx.opal():
-            condicion = self.obtenerValor(ctx.opal())
+            condicion = self.procesarOpal(ctx.opal())
             print(f"Condición: {condicion}")
             self.agregarCodigo(f"if NOT ({condicion}) goto {etiqueta_else}")
         
@@ -172,7 +172,7 @@ class Walker (compiladoresVisitor) :
         self.agregarCodigo(f"{etiqueta_inicio}:")
         
         if ctx.opal():
-            condicion = self.obtenerValor(ctx.opal())
+            condicion = self.procesarOpal(ctx.opal())
             print(f"Condición: {condicion}")
             self.agregarCodigo(f"if NOT ({condicion}) goto {etiqueta_salida}")
         
@@ -228,6 +228,10 @@ class Walker (compiladoresVisitor) :
             
         print("=-"*20)
 
+
+
+    #Parte de las opal con expreciones
+    #--------------------------------------------------------------------------------
     def procesarOpal(self, ctx:compiladoresParser.OpalContext):
         
         if ctx.exp():
@@ -236,7 +240,7 @@ class Walker (compiladoresVisitor) :
             return self.procesarOplo(ctx.oplo())
         elif ctx.callFunc():
             return self.procesarCallFunc(ctx.callFunc())
-        return ctx.getText()
+
 
     def procesarExp(self, ctx:compiladoresParser.ExpContext):
     
@@ -306,7 +310,6 @@ class Walker (compiladoresVisitor) :
         return izquierda
 
     def procesarFactor(self, ctx:compiladoresParser.FactorContext):
-        """Procesa factor: NUMERO | ID | PA exp PC"""
         if ctx.NUMERO():
             return ctx.NUMERO().getText()
         elif ctx.ID():
@@ -314,10 +317,59 @@ class Walker (compiladoresVisitor) :
         elif ctx.exp():
             return self.procesarExp(ctx.exp())
         return ctx.getText()
+    #--------------------------------------------------------------------------------
+    
+    #Parte de las OPLO
+    #--------------------------------------------------------------------------------
+    def procesarOplo(self, ctx: compiladoresParser.OploContext):
+        izquierda = self.procesarAnd(ctx.and_())
+        return self.procesarOr(ctx.or_(), izquierda)
+    
+    def procesarOr(self, ctx, izquierda):
+        while ctx is not None and ctx.and_() is not None:
+            derecha = self.procesarAnd(ctx.and_())
 
-    def procesarOplo(self, ctx:compiladoresParser.OploContext):
-        """Procesa operación lógica"""
-        return ctx.getText()
+            t = self.generarTemporal()
+            self.agregarCodigo(f"{t} = {izquierda} || {derecha}")
+            izquierda = t
+
+            ctx = ctx.or_()
+
+        return izquierda
+
+
+    def procesarAnd(self, ctx: compiladoresParser.AndContext):
+        izquierda = self.procesarCmp(ctx.cmp())
+        return self.procesarA(ctx.a(), izquierda)
+
+    def procesarA(self, ctx: compiladoresParser.AContext, izquierda):
+        while ctx is not None and ctx.cmp() is not None:
+            derecha = self.procesarCmp(ctx.cmp())
+
+            t = self.generarTemporal()
+            self.agregarCodigo(f"{t} = {izquierda} && {derecha}")
+            izquierda = t
+
+            ctx = ctx.a() if ctx.a() else None
+
+        return izquierda
+
+    def procesarCmp(self, ctx: compiladoresParser.CmpContext):
+        izquierda = self.procesarExp(ctx.exp())
+        return self.procesarC(ctx.c(), izquierda)
+    
+    def procesarC(self, ctx: compiladoresParser.CContext, izquierda):
+        if ctx is None:
+            return izquierda
+
+        operador = ctx.getChild(0).getText()  # == != < > <= >=
+        derecha = self.procesarExp(ctx.exp())
+
+        t = self.generarTemporal()
+        self.agregarCodigo(f"{t} = {izquierda} {operador} {derecha}")
+        return t
+
+    #--------------------------------------------------------------------------------
 
     def procesarCallFunc(self, ctx:compiladoresParser.CallFuncContext):
         """Procesa llamada a función"""
