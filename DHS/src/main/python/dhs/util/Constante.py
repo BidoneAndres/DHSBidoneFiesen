@@ -12,7 +12,7 @@ class Constante:
     # ETIQUETAS Y FUNCIONES
     # =========================
     etiqueta = re.compile(r'^L\d+:$')
-    nombreFuncion = re.compile(r'^function\s+\w+\(\):$')
+    nombreFuncion = re.compile(r'^(function|call)\s+\w+\(\):$')
 
     # =========================
     # IF NOT
