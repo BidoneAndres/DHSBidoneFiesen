@@ -196,7 +196,7 @@ class Walker (compiladoresVisitor) :
                 self.agregarCodigo(f"{var_dec} = {var_dec} - 1")
             elif ctx.paramFor().asignacion():
                 asig = ctx.paramFor().asignacion().ID().getText()
-                valor_asig = self.obtenerValor(ctx.paramFor().asignacion().opal())
+                valor_asig = self.procesarOpal(ctx.paramFor().asignacion().opal())
                 self.agregarCodigo(f"{asig} = {valor_asig}")
 
         self.agregarCodigo(f"goto {etiqueta_inicio}")
