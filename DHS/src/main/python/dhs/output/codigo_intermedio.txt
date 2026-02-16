@@ -9,36 +9,46 @@
   9. function main():
  10. b = 2
  11. c = 4
- 12. t3 = b + c
- 13. a = t3
- 14. t4 = b + 1
- 15. a = t4
- 16. t5 = 8 - 1
- 17. a = t5
- 18. L1:
- 19. if NOT (a<=10) goto L2
- 20. t6 = a + 2
- 21. a = t6
- 22. goto L1
- 23. L2:
- 24. b = 0
- 25. L3:
- 26. if NOT (b<5) goto L4
- 27. t7 = c + 1
- 28. c = t7
- 29. b = b+1
- 30. goto L3
- 31. L4:
- 32. if NOT (a>50) goto L5
- 33. resultado = 1
- 34. goto L6
- 35. L5:
- 36. if NOT (c==9) goto L7
- 37. resultado = 2
- 38. goto L8
- 39. L7:
- 40. resultado = 0
- 41. L8:
- 42. L6:
- 43. resultado = calcular_suma()
- 44. return resultado
+ 12. t3 = c * 4
+ 13. t4 = b + t3
+ 14. a = t4
+ 15. t5 = b + 1
+ 16. a = t5
+ 17. t6 = b * 7
+ 18. a = t6
+ 19. L1:
+ 20. t7 = a <= 10
+ 21. t8 = b == 0
+ 22. t9 = t7 && t8
+ 23. t10 = c == 0
+ 24. t11 = t9 || t10
+ 25. if NOT (t11) goto L2
+ 26. t12 = a + 2
+ 27. a = t12
+ 28. goto L1
+ 29. L2:
+ 30. b = 0
+ 31. L3:
+ 32. t13 = b < 5
+ 33. if NOT (t13) goto L4
+ 34. t14 = c + 1
+ 35. c = t14
+ 36. t15 = b + 1
+ 37. b = t15
+ 38. goto L3
+ 39. L4:
+ 40. t16 = a > 50
+ 41. if NOT (t16) goto L5
+ 42. resultado = 1
+ 43. goto L6
+ 44. L5:
+ 45. t17 = c == 9
+ 46. if NOT (t17) goto L7
+ 47. resultado = 2
+ 48. goto L8
+ 49. L7:
+ 50. resultado = 0
+ 51. L8:
+ 52. L6:
+ 53. resultado = calcular_suma()
+ 54. return resultado

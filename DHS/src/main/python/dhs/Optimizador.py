@@ -183,7 +183,7 @@ class Optimizador:
                 
                 # Si se queda, actualizamos variables vivas
                 # 'var' sale porque aquí se define, las de 'exp' entran porque se usan
-                variables_vivas.discard(var)
+                variables_vivas.discard(var) # 
                 for v in Constante.usoVariable.findall(exp):
                     print(f"  Variable '{v}' se mantiene viva por uso en: {instr}")
                     variables_vivas.add(v)
