@@ -2,7 +2,7 @@ int a, b, c;
 int resultado;
 
 
-int calcular_suma() {
+int calcular_suma(int a , int b , int c) {
     int x, y, z;
     x = 10;
     y = 20;
@@ -35,7 +35,7 @@ int main() {
         resultado = 1;
     } else {
         if (c == 9) {
-            resultado = calcular_suma();
+            calcular_suma(5, a + b * c, 1 + 2 );
         } else {
             resultado = 0;
         }
