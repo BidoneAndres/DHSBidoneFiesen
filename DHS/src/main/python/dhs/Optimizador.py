@@ -13,7 +13,7 @@ class Optimizador:
         print("\n--- Contando usos de variables ---\n")
         for linea in lineas:
             texto = re.sub(r'^\s*\d+\.\s*', '', linea) # Elimina el número de línea al inicio (ej. "1. ") para analizar solo el código
-            m = Constante.asignacion.match(texto) 
+            m = Constante.asignacion.match(texto) # Solo analizamos las asignaciones para contar usos, ya que en otras líneas (como if o return) no definimos variables, solo las usamos.
             if m: texto = m.group(2) # Solo analizamos la expresión a la derecha del '=' para contar usos, no la variable que se define a la izquierda
             for v in Constante.usoVariable.findall(texto): # Busca todas las variables usadas en la línea (ej. x, y, t1) y cuenta su uso
                 usos[v] = usos.get(v, 0) + 1 # Incrementa el conteo de uso para cada variable encontrada
@@ -51,6 +51,22 @@ class Optimizador:
                 destino = instr.split()[1]
                 if destino in etiquetas_vistas: tabla.clear()
                 print(f" Ciclo de salto a {destino}, limpiando contexto.")
+                codigo.append(instr)
+                continue
+            if instr.startswith("push"):
+                val_push = instr.replace("push", "").strip()
+                # Propagar constantes (ej: t22 -> 3)
+                for v, val in tabla.items():
+                    val_push = re.sub(rf'\b{v}\b', str(val), val_push)
+                codigo.append(f"push {val_push}")
+                print(f"Optimización de PUSH: push {val_push}")
+                continue
+
+            # --- NUEVO: OPTIMIZACIÓN DE CALL (para argumentos) ---
+            if "call" in instr:
+                # Si el call es t23 = call ..., propagamos en el resto
+                for v, val in tabla.items():
+                    instr = re.sub(rf'\b{v}\b', str(val), instr)
                 codigo.append(instr)
                 continue
             
@@ -143,7 +159,7 @@ class Optimizador:
 # ---------------------------------------------------------------
     @classmethod
     def eliminarAsignacionesMuertas(cls, lineas):
-        print("\n--- Ejecutando Limpieza de Código Muerto (Modo Seguro C) ---")
+        print("\n--- Ejecutando Limpieza de Código Muerto ---")
         
         # 1. Identificar qué variables se usan en condiciones o retornos
         siempre_vivas = set()
@@ -161,6 +177,11 @@ class Optimizador:
             instr = re.sub(r'^\s*\d+\.\s*', '', linea).strip() # Limpiar número de línea
             if not instr: continue
 
+            if instr.startswith("pop"):
+                var_pop = instr.replace("pop", "").strip()
+                variables_vivas.add(var_pop) # La variable que recibe el pop ahora está viva
+                codigo_limpio.append(instr)
+                continue
             # --- LA CLAVE PARA LOS IF/GOTOS ---
             # Si vemos una etiqueta, significa que un GOTO puede venir de cualquier parte.
             # Por seguridad, "resucitamos" las variables que sabemos que son importantes.
@@ -209,10 +230,10 @@ class Optimizador:
             act = lineas[i].strip()
             sig = lineas[i+1].strip()
             
-            m_act = re.match(r'^(\w+):$', act)
-            m_sig = re.match(r'^(\w+):$', sig)
+            m_act = re.match(r'^(\w+):$', act) # Busca etiquetas en la línea actual
+            m_sig = re.match(r'^(\w+):$', sig) # Busca etiquetas en la siguiente línea
             
-            if m_act and m_sig:
+            if m_act and m_sig: # Si la actual y la siguiente son etiquetas, colapsamos la actual hacia la siguiente
                 orig = m_act.group(1)
                 dest = m_sig.group(1)
                 # Si el destino ya es un alias, seguimos la cadena
@@ -235,7 +256,7 @@ class Optimizador:
             lineas_intermedias.append(nueva_l)
 
         # 3. Eliminar etiquetas huérfanas (que no tienen ningún goto apuntándoles)
-        texto_final = "\n".join(lineas_intermedias)
+        texto_final = "\n".join(lineas_intermedias) #
         lineas_finales = []
         for l in lineas_intermedias:
             m_e = re.match(r'^(\w+):$', l.strip())

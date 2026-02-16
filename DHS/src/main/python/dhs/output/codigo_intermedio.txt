@@ -1,56 +1,69 @@
   1. proto int calcular_suma()
   2. function calcular_suma():
-  3. x = 10
-  4. y = 20
-  5. t1 = x + y
-  6. t2 = t1 + 5
-  7. z = t2
-  8. return z
-  9. function main():
- 10. b = 2
- 11. c = 4
- 12. t3 = c * 4
- 13. t4 = b + t3
- 14. a = t4
- 15. t5 = b + 1
- 16. a = t5
- 17. t6 = b * 7
- 18. a = t6
- 19. L1:
- 20. t7 = a <= 10
- 21. t8 = b == 0
- 22. t9 = t7 && t8
- 23. t10 = c == 0
- 24. t11 = t9 || t10
- 25. if NOT (t11) goto L2
- 26. t12 = a + 2
- 27. a = t12
- 28. goto L1
- 29. L2:
- 30. b = 0
- 31. L3:
- 32. t13 = b < 5
- 33. if NOT (t13) goto L4
- 34. t14 = c + 1
- 35. c = t14
- 36. t15 = b + 1
- 37. t16 = 2 * 2
- 38. t17 = t15 + t16
- 39. b = t17
- 40. goto L3
- 41. L4:
- 42. t18 = a > 50
- 43. if NOT (t18) goto L5
- 44. resultado = 1
- 45. goto L6
- 46. L5:
- 47. t19 = c == 9
- 48. if NOT (t19) goto L7
- 49. resultado = 2
- 50. goto L8
- 51. L7:
- 52. resultado = 0
- 53. L8:
- 54. L6:
- 55. resultado = calcular_suma()
- 56. return resultado
+  3. pop c
+  4. pop b
+  5. pop a
+  6. x = 10
+  7. y = 20
+  8. t1 = x + y
+  9. t2 = t1 + 5
+ 10. t3 = t2 + a
+ 11. t4 = t3 + b
+ 12. t5 = t4 - c
+ 13. z = t5
+ 14. return z
+ 15. function main():
+ 16. b = 2
+ 17. c = 4
+ 18. t6 = c * 4
+ 19. t7 = b + t6
+ 20. a = t7
+ 21. t8 = b + 1
+ 22. a = t8
+ 23. t9 = b * 7
+ 24. a = t9
+ 25. L1:
+ 26. t10 = a <= 10
+ 27. t11 = b == 0
+ 28. t12 = t10 && t11
+ 29. t13 = c == 0
+ 30. t14 = t12 || t13
+ 31. if NOT (t14) goto L2
+ 32. t15 = a + 2
+ 33. a = t15
+ 34. goto L1
+ 35. L2:
+ 36. b = 0
+ 37. L3:
+ 38. t16 = b < 5
+ 39. if NOT (t16) goto L4
+ 40. t17 = c + 1
+ 41. c = t17
+ 42. t18 = b + 1
+ 43. t19 = 2 * 2
+ 44. t20 = t18 + t19
+ 45. b = t20
+ 46. goto L3
+ 47. L4:
+ 48. t21 = a > 50
+ 49. if NOT (t21) goto L5
+ 50. resultado = 1
+ 51. goto L6
+ 52. L5:
+ 53. t22 = c == 9
+ 54. if NOT (t22) goto L7
+ 55. push 5
+ 56. t23 = b * c
+ 57. t24 = a + t23
+ 58. push t24
+ 59. t25 = 1 + 2
+ 60. push t25
+ 61. call calcular_suma
+ 62. goto L8
+ 63. L7:
+ 64. resultado = 0
+ 65. L8:
+ 66. L6:
+ 67. t26 = call calcular_suma
+ 68. resultado = t26
+ 69. return resultado

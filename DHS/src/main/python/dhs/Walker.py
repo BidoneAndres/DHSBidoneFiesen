@@ -371,9 +371,24 @@ class Walker (compiladoresVisitor) :
 
     #--------------------------------------------------------------------------------
 
-    def procesarCallFunc(self, ctx:compiladoresParser.CallFuncContext):
-        """Procesa llamada a función"""
-        return ctx.getText()
+    def procesarCallFunc(self, ctx: compiladoresParser.CallFuncContext):
+
+        nombre = ctx.ID().getText()
+        cantidad = 0
+
+        # Procesar parámetros si existen
+        if ctx.var():
+            for expr in ctx.var().exp():
+                valor = self.procesarExp(expr)
+                self.agregarCodigo(f"push {valor}")
+                cantidad += 1
+
+        # Generar temporal para el retorno
+        temp = self.generarTemporal()
+        self.agregarCodigo(f"{temp} = call {nombre}")
+
+        return temp
+
 
     def obtenerValor(self, ctx):
         return ctx.getText()
@@ -423,21 +438,49 @@ class Walker (compiladoresVisitor) :
         print("=-"*20)
         tipo = ctx.getChild(0).getText()
         nombre = ctx.ID().getText()
+        argumentos = [] #Esta es la lista de argumentos de las funcoines
         print(f"Función: {tipo} {nombre}()")
         self.agregarCodigo(f"function {nombre}():")
         
+        #Entramos a ver los argumentos
+        if ctx.var_func():
+            argfunc = ctx.var_func()
+
+
+            for i in range(argfunc.getChildCount()):
+                pf = argfunc.getChild(i)
+        
+                if hasattr(pf, 'getSymbol') and pf.getSymbol().type == compiladoresParser.ID:
+                    argumentos.append(pf.getText())
+
+
+
+        for j in reversed(argumentos):
+            self.agregarCodigo(f"pop {j}")
+
         if ctx.bloque():
             self.visitBloque(ctx.bloque())
         print("=-"*20)
 
-    def visitCallFunc(self, ctx:compiladoresParser.CallFuncContext):
+    def visitCallFunc(self, ctx: compiladoresParser.CallFuncContext):
+
         print("=-"*20)
         print("SE ENCONTRO UNA LLAMADA A FUNCION")
         print("=-"*20)
+
         nombre = ctx.ID().getText()
-        print(f"Llamada: {nombre}()")
+        cantidad = 0
+
+        if ctx.var():
+            for expr in ctx.var().exp():
+                valor = self.procesarExp(expr)
+                self.agregarCodigo(f"push {valor}")
+                cantidad += 1
+
         self.agregarCodigo(f"call {nombre}")
+
         print("=-"*20)
+
 
     def visitProto(self, ctx:compiladoresParser.ProtoContext):
         print("=-"*20)
@@ -470,6 +513,6 @@ class Walker (compiladoresVisitor) :
             with open(archivo, 'w', encoding='utf-8') as f:
                 for i, instruccion in enumerate(self.codigo_intermedio, 1):
                     f.write(f"{i:3d}. {instruccion}\n")
-            print(f"✓ Código de 3 direcciones guardado en: {archivo}")
+            print(f"Código de 3 direcciones guardado en: {archivo}")
         except Exception as e:
-            print(f"✗ Error al guardar el archivo: {e}")
+            print(f"Error al guardar el archivo: {e}")
