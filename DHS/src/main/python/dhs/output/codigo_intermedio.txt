@@ -34,21 +34,23 @@
  34. t14 = c + 1
  35. c = t14
  36. t15 = b + 1
- 37. b = t15
- 38. goto L3
- 39. L4:
- 40. t16 = a > 50
- 41. if NOT (t16) goto L5
- 42. resultado = 1
- 43. goto L6
- 44. L5:
- 45. t17 = c == 9
- 46. if NOT (t17) goto L7
- 47. resultado = 2
- 48. goto L8
- 49. L7:
- 50. resultado = 0
- 51. L8:
- 52. L6:
- 53. resultado = calcular_suma()
- 54. return resultado
+ 37. t16 = 2 * 2
+ 38. t17 = t15 + t16
+ 39. b = t17
+ 40. goto L3
+ 41. L4:
+ 42. t18 = a > 50
+ 43. if NOT (t18) goto L5
+ 44. resultado = 1
+ 45. goto L6
+ 46. L5:
+ 47. t19 = c == 9
+ 48. if NOT (t19) goto L7
+ 49. resultado = 2
+ 50. goto L8
+ 51. L7:
+ 52. resultado = 0
+ 53. L8:
+ 54. L6:
+ 55. resultado = calcular_suma()
+ 56. return resultado

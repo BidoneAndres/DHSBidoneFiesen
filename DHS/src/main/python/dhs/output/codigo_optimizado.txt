@@ -24,13 +24,13 @@
  24. c = t14
  25. goto L3
  26. L4:
- 27. t16 = a > 50
- 28. if NOT (t16) goto L5
+ 27. t18 = a > 50
+ 28. if NOT (t18) goto L5
  29. resultado = 1
  30. goto L6
  31. L5:
- 32. t17 = c == 9
- 33. if NOT (t17) goto L7
+ 32. t19 = c == 9
+ 33. if NOT (t19) goto L7
  34. resultado = 2
  35. goto L6
  36. L7:
