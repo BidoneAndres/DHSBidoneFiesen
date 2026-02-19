@@ -218,7 +218,7 @@ func: (INT //Aca declaro los tipos posibles de las variables, no estoy seguro si
     | DOUBLE //si tambien entra los double int y los double float
     | FLOAT 
     | BOOLEAN
-    | CHAR | VOID) ID (PA | ) (var_func|) (PC | ) bloque;
+    | CHAR | VOID) ID PA (var_func|) PC bloque;
 
 var_func : (INT //Aca declaro los tipos posibles de las variables, no estoy seguro si el string hace falta, y despues le tengo que preguntar al profe
         | DOUBLE //si tambien entra los double int y los double float

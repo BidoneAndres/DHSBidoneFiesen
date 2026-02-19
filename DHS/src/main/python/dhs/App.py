@@ -19,8 +19,8 @@ def main(argv):
     parser.addParseListener(escucha)
     tree = parser.programa()
     #if escucha.hubo_error:
-     #   print("\n[!] La compilación falló debido a errores semánticos. No se generará código.")
-      #  return
+    #    print("\n[!] La compilación falló debido a errores semánticos. No se generará código.")
+    #    return
     #print(tree.toStringTree(recog=parser))
     caminante = Walker()
     caminante.visitPrograma(tree)
