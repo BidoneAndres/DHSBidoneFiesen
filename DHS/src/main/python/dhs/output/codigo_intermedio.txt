@@ -99,24 +99,27 @@
  99. if NOT (t40) goto L14
 100. t41 = q == 1
 101. if NOT (t41) goto L15
-102. q = 0
-103. goto L16
-104. L15:
-105. L16:
-106. goto L13
-107. L14:
-108. goto L12
-109. L11:
-110. resultado = 0
-111. L12:
-112. L10:
-113. t42 = q == 1
-114. if NOT (t42) goto L17
-115. resultado = 3
-116. goto L18
-117. L17:
-118. L18:
-119. t43 = resultado + 5
-120. t44 = t43 + 6
-121. t45 = t44 + 7
-122. return t45
+102. push j
+103. push k
+104. t42 = call calcular_resta
+105. q = t42
+106. goto L16
+107. L15:
+108. L16:
+109. goto L13
+110. L14:
+111. goto L12
+112. L11:
+113. resultado = 0
+114. L12:
+115. L10:
+116. t43 = q == 1
+117. if NOT (t43) goto L17
+118. resultado = 3
+119. goto L18
+120. L17:
+121. L18:
+122. t44 = resultado + 5
+123. t45 = t44 + 6
+124. t46 = t45 + 7
+125. return t46

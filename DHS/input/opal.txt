@@ -1,7 +1,7 @@
 
 
 int calcular_resta(int a, int b){
-    
+
     return a-b;
 }
 
@@ -20,7 +20,7 @@ int calcular_suma(int a , int b , int c) {
 int main() {
 
 
-    int k, q, j, resultado;
+    int k, q, j, resultado, a, b , c;
 
     k = 2;
     q = 4;
@@ -61,7 +61,7 @@ int main() {
         if (q == 9) {
             while(q + 4*(j+q*j) == 0){
                 if (q == 1){
-                    q = 0;
+                    q = calcular_resta(j,k);
                 }
             }
 

@@ -12,6 +12,7 @@ class Escucha(compiladoresListener) :
         self.hubo_error = False
         self.TablaSimbolos = TablaSimbolos()
         self.vengoDeUnaFucion = False   
+        self.vengoDeUnPrototipo = False
         self.parametros_temporales = [] 
     numTokens = 0
     numNode = 0
@@ -333,15 +334,18 @@ class Escucha(compiladoresListener) :
     # 1. Extraemos los datos directamente de la regla
         tipo_str = ctx.tipo().getText()
         nombre = ctx.ID().getText()
-        
-        # 2. Registramos en la tabla de símbolos (USANDO self.)
-        self.TablaSimbolos.addIdentificador(nombre, self.mapear_tipo(tipo_str))
-        
-        # 3. Marcamos como inicializado para que 'a = 0' no de error de inicialización
-        simbolo = self.TablaSimbolos.buscarIdentificador(nombre)
-        if simbolo:
-            simbolo.inicializado = 1
-            print(f"   >>> Parámetro '{nombre}' ({tipo_str}) registrado y validado.")
+        if self.vengoDeUnPrototipo :
+            print("VENGO DE UN PROTOTIPO NO GUARDO MIS DATOS")
+  
+        else:
+            # 2. Registramos en la tabla de símbolos (USANDO self.)
+            self.TablaSimbolos.addIdentificador(nombre, self.mapear_tipo(tipo_str))
+            
+            # 3. Marcamos como inicializado para que 'a = 0' no de error de inicialización
+            simbolo = self.TablaSimbolos.buscarIdentificador(nombre)
+            if simbolo:
+                simbolo.inicializado = 1
+                print(f"   >>> Parámetro '{nombre}' ({tipo_str}) registrado y validado.")
 
     def mapear_tipo(self, t):
         t = t.lower()
@@ -359,13 +363,15 @@ class Escucha(compiladoresListener) :
     def enterProto(self, ctx: compiladoresParser.ProtoContext):
         print ("---> Encontre un prototipo")
         print(">>> ENTRE EN PROTO")
+        self.vengoDeUnPrototipo = True
+
         return super().enterProto(ctx)
     
     def exitProto(self, ctx: compiladoresParser.ProtoContext):
         
         retorno = ctx.getChild(0).getText()
         nombrePrototipo = ctx.getChild(1).getText()
-        
+        self.vengoDeUnPrototipo=False
         #Lo primero que quiero comprobar es que este cuente con el punto y coma 
 
 
