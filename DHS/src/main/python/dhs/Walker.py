@@ -424,7 +424,7 @@ class Walker (compiladoresVisitor) :
         print("SE ENCONTRO UN RETURN")
         print("=-"*20)
         if ctx.opal():
-            valor = self.obtenerValor(ctx.opal())
+            valor = self.procesarOpal(ctx.opal())
             print(f"return {valor}")
             self.agregarCodigo(f"return {valor}")
         else:
@@ -444,14 +444,13 @@ class Walker (compiladoresVisitor) :
         
         #Entramos a ver los argumentos
         if ctx.var_func():
-            argfunc = ctx.var_func()
 
 
-            for i in range(argfunc.getChildCount()):
-                pf = argfunc.getChild(i)
-        
-                if hasattr(pf, 'getSymbol') and pf.getSymbol().type == compiladoresParser.ID:
-                    argumentos.append(pf.getText())
+            for p in ctx.var_func().parametro():
+                            # Cada 'p' es un ParametroContext, que tiene un ID()
+                            nombre_param = p.ID().getText()
+                            argumentos.append(nombre_param)
+                            print(f"   Argumento detectado: {nombre_param}")
 
 
 

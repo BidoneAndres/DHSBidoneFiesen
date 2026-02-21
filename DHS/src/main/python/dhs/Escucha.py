@@ -312,6 +312,8 @@ class Escucha(compiladoresListener) :
      # -----------------------------------------------------------
     def enterFunc(self, ctx: compiladoresParser.FuncContext):
         print("---> Se ingreso una funcion... ")
+        # (Asegurate de tener un método para agregar funciones o usá el de variables)
+
         nuevo_contexto_local = Contexto()
         self.TablaSimbolos.addContexto(nuevo_contexto_local)
         self.vengoDeUnaFucion = True
@@ -319,7 +321,12 @@ class Escucha(compiladoresListener) :
     def exitFunc(self, ctx: compiladoresParser.FuncContext):
         # NO TOCAR LA TABLA DE SIMBOLOS ACÁ
         # El contexto se cierra solo en exitBloque
+        retorno = ctx.getChild(0).getText()
         nombrefuncion = ctx.getChild(1).getText()
+        
+        TablaSimbolos.addIdentificador(TablaSimbolos, nombrefuncion, retorno )
+        # 2. IMPORTANTE: Las funciones siempre están "inicializadas"
+        f = self.TablaSimbolos.buscarIdentificador(nombrefuncion)
         print(f"---> Finalizó el análisis de la función '{nombrefuncion}'")
 
     def exitParametro(self, ctx: compiladoresParser.ParametroContext):

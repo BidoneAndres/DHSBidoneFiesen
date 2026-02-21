@@ -1,6 +1,5 @@
 
 
-
 int calcular_resta(int a, int b){
     
     return a-b;
@@ -15,7 +14,7 @@ int calcular_suma(int a , int b , int c) {
     x = 10;
     y = 20;
     z = x + y + 5 + a + b - c;
-    return z;
+    return z  + b  + c;
 }
 
 int main() {
@@ -33,9 +32,9 @@ int main() {
     k = q * 7;
 
 
+    ponerEn0(k);
 
-
-
+    resultado = calcular_suma(1,2,3);
 
     while (k == 0) 
         k = k + 2;
@@ -60,6 +59,11 @@ int main() {
         resultado = 1;
     } else {
         if (q == 9) {
+            while(q + 4*(j+q*j) == 0){
+                if (q == 1){
+                    q = 0;
+                }
+            }
 
         } else {
             resultado = 0;
@@ -72,5 +76,5 @@ int main() {
 
 
     
-    return resultado;
+    return resultado + 5 + 6 + 7;
 }
