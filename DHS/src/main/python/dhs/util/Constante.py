@@ -6,7 +6,10 @@ class Constante:
     # ASIGNACIONES
     # =========================
     # Ej: a = t1 , t2 = 3 + 4
-    asignacion = re.compile(r'^([a-zA-Z_]\w*)\s*=\s*(.+)$')
+    asignacion = re.compile(
+        r'^(?!(?:function|proto|int|pop|call|main|push|return|goto|if)\b)'  # Exclusiones
+        r'([a-zA-Z_]\w*)\s*=\s*(.+)$'                                       # Variable = Expresión
+    )
 
     # =========================
     # ETIQUETAS Y FUNCIONES
@@ -33,4 +36,4 @@ class Constante:
     # =========================
     #usoVariable = re.compile(r'\b([a-zA-Z_]\w*)\b')
     # Regex con Negative Lookahead
-    usoVariable = re.compile(r'\b(?!(?:if|NOT|return|goto|L\d+)\b)([a-zA-Z_]\w*)\b')
+    usoVariable = re.compile(r'\b(?!(?:if|NOT|return|goto|function|proto|push|pop|call|main|int|void|L\d+)\b)([a-zA-Z_]\w*)\b')

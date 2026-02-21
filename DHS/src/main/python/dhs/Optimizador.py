@@ -8,16 +8,38 @@ class Optimizador:
     # Sirve para identificar qué variables son necesarias y cuáles pueden ser eliminadas
     # si no se usan más adelante (especialmente variables temporales 't').
     
+    @staticmethod
     def contarUsos(lineas):
         usos = {}
-        print("\n--- Contando usos de variables ---\n")
+    # Regex para capturar nombres de funciones en declaraciones o llamadas
+    # Busca lo que sigue a call/function/proto O lo que está antes de un ( o :
+        regex_nombres_f = re.compile(r'(?:call|function|proto)\s+([a-zA-Z_]\w*)|([a-zA-Z_]\w*)\s*(?:\(|:)')
+
         for linea in lineas:
-            texto = re.sub(r'^\s*\d+\.\s*', '', linea) # Elimina el número de línea al inicio (ej. "1. ") para analizar solo el código
-            m = Constante.asignacion.match(texto) # Solo analizamos las asignaciones para contar usos, ya que en otras líneas (como if o return) no definimos variables, solo las usamos.
-            if m: texto = m.group(2) # Solo analizamos la expresión a la derecha del '=' para contar usos, no la variable que se define a la izquierda
-            for v in Constante.usoVariable.findall(texto): # Busca todas las variables usadas en la línea (ej. x, y, t1) y cuenta su uso
-                usos[v] = usos.get(v, 0) + 1 # Incrementa el conteo de uso para cada variable encontrada
-        print("\n--- Conteo de usos completado ---\n")
+        # 1. Limpiar número de línea
+            texto = re.sub(r'^\s*\d+\.\s*', '', linea).strip()
+            if not texto: continue
+
+        # 2. Identificar nombres de funciones para ignorar en esta línea
+        # Combinamos todos los grupos capturados que no sean None
+            nombres_f = {item for sublist in regex_nombres_f.findall(texto) for item in sublist if item}
+
+        # 3. Analizar la línea para buscar variables
+        # Si es asignación, nos enfocamos en la derecha, si no, en toda la línea (para los push/if)
+            m = Constante.asignacion.match(texto)
+            parte_a_buscar = m.group(2) if m else texto
+        
+            candidatos = Constante.usoVariable.findall(parte_a_buscar)
+        
+            for v in candidatos:
+            # Solo contamos si:
+            # - No es una de las funciones detectadas (main, calcular_suma, etc.)
+            # - No es una palabra reservada (redundancia de seguridad)
+                if v not in nombres_f:
+                    usos[v] = usos.get(v, 0) + 1
+        print("\nConteo de usos de variables:")
+        for var, count in usos.items():
+            print(f"  {var}: {count} uso(s)")        
         return usos
 
     @classmethod
@@ -145,14 +167,23 @@ class Optimizador:
 
             # OPTIMIZACIÓN DE RETURN: Propaga constantes en el retorno
             if instr.startswith("return"):
-                ret = instr.replace("return", "").strip() # Extrae lo que se retorna
-                for v, val in tabla.items(): # Reemplaza variables por sus valores constantes conocidos en el retorno
-                    ret = re.sub(rf'\b{v}\b', str(val), ret) # ej x -> 5, y -> 10 en el retorno return x + y -> return 5 + 10
-                codigo.append(f"return {ret}")
-                print(f"Manteniendo RETURN optimizado: return {ret}")
+                ret = instr.replace("return", "").strip()
+                # 1. Propagamos lo que conocemos
+                for v, val in tabla.items():
+                    ret = re.sub(rf'\b{v}\b', str(val), ret)
+                
+                # 2. Una vez terminada la propagación, evaluamos si hay que romper la expresión
+                # Buscamos operadores +, -, *, /, %
+                if re.search(r'[+\-*/%]', ret):
+                    # Creamos un temporal único sumando un offset al total de usos
+                    nuevo_t = f"t{len(usos)}" 
+                    codigo.append(f"{nuevo_t} = {ret}")
+                    codigo.append(f"return {nuevo_t}")
+                else:
+                    codigo.append(f"return {ret}")
                 continue
-
             codigo.append(instr)
+
         print("\n --- Optimización completa ---")
         return codigo
 
