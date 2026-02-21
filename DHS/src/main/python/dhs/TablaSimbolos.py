@@ -46,6 +46,12 @@ class TablaSimbolos(object):
             return resultadoBusqueda
     
 
+    def buscarIdentificador(self, nombre):
+        for contexto in reversed(self.contextos):
+            resultado = contexto.traerVariable(nombre)
+            if resultado is not None:
+                return resultado
+        return None
 
     
 

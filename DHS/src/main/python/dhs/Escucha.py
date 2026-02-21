@@ -10,8 +10,9 @@ class Escucha(compiladoresListener) :
 
     def __init__(self):
         self.hubo_error = False
-
-    TablaSimbolos = TablaSimbolos()    
+        self.TablaSimbolos = TablaSimbolos()
+        self.vengoDeUnaFucion = False   
+        self.parametros_temporales = [] 
     numTokens = 0
     numNode = 0
 
@@ -36,22 +37,22 @@ class Escucha(compiladoresListener) :
     #Cuando usamos un bloque, estoy probando con while 
     # -----------------------------------------------------------
     def enterBloque(self, ctx: compiladoresParser.BloqueContext):
-        print("---> Encontre un BLOQUE")
-        context = Contexto()
-        self.TablaSimbolos.addContexto(context)
-        
+        # SI venimos de una función, REUSAMOS el contexto que ya creó enterFunc
+        if self.vengoDeUnaFucion:
+            print("---> BLOQUE de Función: Reusando contexto de parámetros")
+            self.vengoDeUnaFucion = False 
+        else:
+            # SI es un IF o WHILE, sí creamos uno nuevo
+            print("---> BLOQUE normal: Creando nuevo contexto")
+            contexto_nuevo = Contexto()
+            self.TablaSimbolos.addContexto(contexto_nuevo)
+
     def exitBloque(self, ctx: compiladoresParser.BloqueContext):
-        
-        print ("Salgo de un bloque")
-        print ("Cantidad de hijos: " + str(ctx.getChildCount()))
-        print("Tokens: " + str(ctx.getText()))
-
-        print("Se encontro:")
-        TablaSimbolos.contextos[-1].imprimirTabla()
-        TablaSimbolos.delContexto(TablaSimbolos)
-
-
-        return super().exitBloque(ctx)
+        print("Salgo de un bloque")
+        # Imprimimos la tabla del contexto actual
+        self.TablaSimbolos.contextos[-1].imprimirTabla()
+        # Borramos el contexto. Si era de función, se borra acá. Si era de IF, también.
+        self.TablaSimbolos.delContexto()
     # -----------------------------------------------------------
 
     #Ecuchamos si viene un while entonces hacemos...
@@ -88,10 +89,8 @@ class Escucha(compiladoresListener) :
 
     # Esto es para el if
     # -----------------------------------------------------------
-    def enterIf(self, ctx: compiladoresParser.IfContext):
-        return super().enterIf(ctx)
-    
-    def exitIf(self, ctx: compiladoresParser.IfContext):
+
+    def exitIif(self, ctx: compiladoresParser.IifContext):
         
         opal = ctx.opal()
         pa = ctx.PA()
@@ -111,7 +110,7 @@ class Escucha(compiladoresListener) :
         if opal == None : 
             print ( "ERROR, se espera una operacion aritmetica o logica")
             self.hubo_error = True
-        return super().exitIf(ctx)
+        return super().exitIif(ctx)
     # -----------------------------------------------------------
     
     #Esto va a ser para el for, enrealidad tengo tener en cuenta mas cosas
@@ -148,7 +147,6 @@ class Escucha(compiladoresListener) :
             self.hubo_error = True
             return None
         
-        return super().exitIf(ctx)
         
 
         return super().exitIfor(ctx)
@@ -237,14 +235,12 @@ class Escucha(compiladoresListener) :
         # =========================
         nombre = ctx.ID().getText()
 
-        simbolo = TablaSimbolos.buscarLocal(TablaSimbolos, nombre)
-        if simbolo == 1:
-            simbolo = TablaSimbolos.buscarGlobal(TablaSimbolos, nombre)
-            if simbolo == 1:
-                print(f"ERROR, variable no declarada: {nombre}")
-                ctx.tipoDato = TipoDato.ERROR
-                self.hubo_error = True
-                return
+        simbolo = self.TablaSimbolos.buscarIdentificador(nombre)
+    
+        if simbolo is None or simbolo == 1: # Ajusta según lo que devuelva tu método
+            print(f"ERROR SEMÁNTICO: Variable '{nombre}' no declarada.")
+            self.hubo_error = True
+            return
 
         tipo_lhs = simbolo.tipoDato
 
@@ -314,73 +310,48 @@ class Escucha(compiladoresListener) :
 
     #Aca se va a declarar las fuciones...
      # -----------------------------------------------------------
-   
     def enterFunc(self, ctx: compiladoresParser.FuncContext):
         print("---> Se ingreso una funcion... ")
-        
-        return super().enterFunc(ctx)
-    
+        nuevo_contexto_local = Contexto()
+        self.TablaSimbolos.addContexto(nuevo_contexto_local)
+        self.vengoDeUnaFucion = True
+
     def exitFunc(self, ctx: compiladoresParser.FuncContext):
-        
-
-        #Primero compruebo que este bien escrita
-
-        pa = ctx.PA()
-        pc = ctx.PC()
-        #Lo que tenemos que hacer aca es comprobar si tenemos ambos parentesis en el while 
-        
-        if pa == None :
-            print( "ERROR, se espera un '(' " )
-            return None
-
-        if pc == None :
-            print ( "ERROR, se espera un ')'" )
-            return None
-        
-        retorno = ctx.getChild(0).getText()
+        # NO TOCAR LA TABLA DE SIMBOLOS ACÁ
+        # El contexto se cierra solo en exitBloque
         nombrefuncion = ctx.getChild(1).getText()
+        print(f"---> Finalizó el análisis de la función '{nombrefuncion}'")
 
-        buscarGlobal = TablaSimbolos.buscarGlobal(TablaSimbolos, nombrefuncion)
-
-        comprobar = False
-        listaParametros = []
-
-        if buscarGlobal == 1:
-            print ( "ADVERTENCIA, la funcion no tiene declarado un prototipo" )
-            return None;
-        parametros = ctx.var_func()
-
-        if parametros and parametros.getChildCount() > 0:
-                
-            comprobar = True
-
-            i = 0
-            while i < parametros.getChildCount() :
-            
-                tipo = parametros.getChild(i).getText()
-                nombre = parametros. getChild(i+1).getText()
-                listaParametros.append(f"{tipo} {nombre}")
-                i+=3
-
-            print ("---> La funcion ' " + nombrefuncion + " ' fue ingresada correctamente")
-            print ("--------------------------------------")
-            print ("Nombre: " + nombrefuncion)
-            print ("Tipo de Retorno: " + retorno)
-            
-        if comprobar :
-            print("Parametros: ")
-            print(listaParametros)
-        else :
-            print("La funcion no necesita parametros")    
-        print ("--------------------------------------")       
-
+    def exitParametro(self, ctx: compiladoresParser.ParametroContext):
+    # 1. Extraemos los datos directamente de la regla
+        tipo_str = ctx.tipo().getText()
+        nombre = ctx.ID().getText()
         
+        # 2. Registramos en la tabla de símbolos (USANDO self.)
+        self.TablaSimbolos.addIdentificador(nombre, self.mapear_tipo(tipo_str))
+        
+        # 3. Marcamos como inicializado para que 'a = 0' no de error de inicialización
+        simbolo = self.TablaSimbolos.buscarIdentificador(nombre)
+        if simbolo:
+            simbolo.inicializado = 1
+            print(f"   >>> Parámetro '{nombre}' ({tipo_str}) registrado y validado.")
+
+    def mapear_tipo(self, t):
+        t = t.lower()
+        # Asegúrate de que TipoDato.INT etc. coincidan con tu archivo Id.py
+        if t == 'int': return TipoDato.INT
+        if t == 'double': return TipoDato.DOUBLE
+        if t == 'float': return TipoDato.FLOAT
+        if t == 'char': return TipoDato.CHAR
+        if t == 'bool': return TipoDato.BOOLEAN
+        return TipoDato.VOID
         
 
     #Aca declaramos el prototipo 
     # -----------------------------------------------------------
     def enterProto(self, ctx: compiladoresParser.ProtoContext):
         print ("---> Encontre un prototipo")
+        print(">>> ENTRE EN PROTO")
         return super().enterProto(ctx)
     
     def exitProto(self, ctx: compiladoresParser.ProtoContext):
@@ -448,14 +419,12 @@ class Escucha(compiladoresListener) :
         if ctx.ID() is not None:
             nombre = ctx.ID().getText()
 
-            busqueda = TablaSimbolos.buscarLocal(TablaSimbolos, nombre)
-            if busqueda == 1:
-                busqueda = TablaSimbolos.buscarGlobal(TablaSimbolos, nombre)
-                if busqueda == 1:
-                    print("ERROR, variable no existente:", nombre)
-                    ctx.tipoDato = TipoDato.ERROR
-                    self.hubo_error = True
-                    return
+            busqueda = self.TablaSimbolos.buscarIdentificador(nombre)
+        
+            if busqueda is None or busqueda == 1:
+                print(f"ERROR SEMÁNTICO: Variable '{nombre}' no declarada en este alcance.")
+                self.hubo_error = True
+                return
 
             if busqueda.inicializado != 1:
                 print("ERROR, la variable no ha sido inicializada:", nombre)
@@ -533,37 +502,18 @@ class Escucha(compiladoresListener) :
 
         variable = ctx.getChild(0).getText()
 
-        local = TablaSimbolos.buscarLocal(TablaSimbolos, variable)
-        #Aca vamos a buscar si se encuentra declarada de manera local
-        if local != 1:
-            # si si
+        simbolo = self.TablaSimbolos.buscarIdentificador(variable)
 
-            #Comprobamos si la variable esta inicializada
-
-            if local.inicializado != 1 : 
-                print ( "ERROR, la variable no esta declarada" )
-                return None
-            
-            # En el caso de si estar inicializada lo que vamos a hacer es ponerla como usada.
-
-            local.usado = 1
-        else :
-            
-            #Ahora la vamos a buscar pero globalmente
-            glob = TablaSimbolos.buscarGlobal(TablaSimbolos, variable)
-
-            if glob == 1:
-                print ( "ERROR, la variable no esta declarada" )
-                return None
-            
-            if glob.inicializado != 1 : 
-                print ( "ERROR, la variable no esta inicializado" )
-                return None
-            
-
-            #Si esta la encontramos 
-            glob.usado = 1
-
+        if simbolo is None or simbolo == 1:
+            print(f"ERROR: No se puede incrementar '{variable}', no existe.")
+            self.hubo_error = True
+            return
+        
+        if simbolo.inicializado != 1:
+            print(f"ERROR: Variable '{variable}' no inicializada.")
+            return
+        
+        simbolo.usado = 1
 
 
         return super().exitIncremento(ctx)
@@ -575,36 +525,18 @@ class Escucha(compiladoresListener) :
 
         variable = ctx.getChild(0).getText()
 
-        local = TablaSimbolos.buscarLocal(TablaSimbolos, variable)
-        #Aca vamos a buscar si se encuentra declarada de manera local
-        if local != 1:
-            # si si
+        simbolo = self.TablaSimbolos.buscarIdentificador(variable)
 
-            #Comprobamos si la variable esta inicializada
-
-            if local.inicializado != 1 : 
-                print ( "ERROR, la variable no esta declarada" )
-                return None
-            
-            # En el caso de si estar inicializada lo que vamos a hacer es ponerla como usada.
-
-            local.usado = 1
-        else :
-            
-            #Ahora la vamos a buscar pero globalmente
-            glob = TablaSimbolos.buscarGlobal(TablaSimbolos, variable)
-
-            if glob == 1:
-                print ( "ERROR, la variable no esta declarada" )
-                return None
-            
-            if glob.inicializado != 1 : 
-                print ( "ERROR, la variable no esta inicializado" )
-                return None
-            
-
-            #Si esta la encontramos 
-            glob.usado = 1
+        if simbolo is None or simbolo == 1:
+            print(f"ERROR: No se puede incrementar '{variable}', no existe.")
+            self.hubo_error = True
+            return
+        
+        if simbolo.inicializado != 1:
+            print(f"ERROR: Variable '{variable}' no inicializada.")
+            return
+        
+        simbolo.usado = 1
 
 
 

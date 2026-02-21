@@ -1,108 +1,88 @@
-  1. proto int calcular_suma()
-  2. proto int calcular_resta()
-  3. function calcular_resta():
-  4. pop b
-  5. pop a
-  6. return a-b
-  7. function ponerEn0():
-  8. pop x
-  9. x = 0
- 10. function calcular_suma():
- 11. pop c
- 12. pop b
- 13. pop a
- 14. x = 10
- 15. y = 20
- 16. t1 = x + y
- 17. t2 = t1 + 5
- 18. t3 = t2 + a
- 19. t4 = t3 + b
- 20. t5 = t4 - c
- 21. z = t5
- 22. return z
- 23. function main():
- 24. b = 2
- 25. c = 4
- 26. t6 = c * 4
- 27. t7 = b + t6
- 28. a = t7
- 29. t8 = b + 1
- 30. a = t8
- 31. t9 = b * 7
- 32. a = t9
- 33. push 10
- 34. push 9
- 35. t10 = call calcular_resta
- 36. b = t10
- 37. L1:
- 38. t11 = c == 0
- 39. if NOT (t11) goto L2
- 40. t12 = a + 2
- 41. a = t12
- 42. goto L1
- 43. L2:
- 44. L3:
- 45. t13 = a <= 10
- 46. t14 = b == 0
- 47. t15 = t13 && t14
- 48. t16 = c == 0
- 49. t17 = t15 || t16
- 50. if NOT (t17) goto L4
- 51. t18 = a + 2
- 52. a = t18
- 53. goto L3
- 54. L4:
- 55. b = 0
- 56. L5:
- 57. t19 = b < 5
- 58. t20 = c * a
- 59. t21 = b + t20
- 60. t22 = 4 * t21
- 61. t23 = a + t22
- 62. t24 = t23 == 0
- 63. t25 = c >= 50
- 64. t26 = t24 && t25
- 65. t27 = t19 || t26
- 66. if NOT (t27) goto L6
- 67. t28 = c + 1
- 68. c = t28
- 69. b = b + 1
- 70. goto L5
- 71. L6:
- 72. b = 0
- 73. L7:
- 74. t29 = c >= 50
- 75. if NOT (t29) goto L8
- 76. t30 = c + 1
- 77. c = t30
- 78. b = b + 1
- 79. goto L7
- 80. L8:
- 81. t31 = a > 50
- 82. if NOT (t31) goto L9
- 83. resultado = 1
- 84. goto L10
- 85. L9:
- 86. t32 = c == 9
- 87. if NOT (t32) goto L11
- 88. push 5
- 89. t33 = b * c
- 90. t34 = a + t33
- 91. push t34
- 92. t35 = 1 + 2
- 93. push t35
- 94. call calcular_suma
- 95. goto L12
- 96. L11:
- 97. resultado = 0
- 98. L12:
- 99. L10:
-100. t36 = a == 1
-101. if NOT (t36) goto L13
-102. resultado = 3
-103. goto L14
-104. L13:
-105. L14:
-106. t37 = call calcular_suma
-107. resultado = t37
-108. return resultado
+  1. function calcular_resta():
+  2. return a-b
+  3. function ponerEn0():
+  4. x = 0
+  5. function calcular_suma():
+  6. x = 10
+  7. y = 20
+  8. t1 = x + y
+  9. t2 = t1 + 5
+ 10. t3 = t2 + a
+ 11. t4 = t3 + b
+ 12. t5 = t4 - c
+ 13. z = t5
+ 14. return z
+ 15. function main():
+ 16. k = 2
+ 17. q = 4
+ 18. j = 0
+ 19. t6 = j * 4
+ 20. t7 = q + t6
+ 21. j = t7
+ 22. t8 = q + 1
+ 23. j = t8
+ 24. t9 = q * 7
+ 25. k = t9
+ 26. L1:
+ 27. t10 = k == 0
+ 28. if NOT (t10) goto L2
+ 29. t11 = k + 2
+ 30. k = t11
+ 31. goto L1
+ 32. L2:
+ 33. L3:
+ 34. t12 = k <= 10
+ 35. t13 = k == 0
+ 36. t14 = t12 && t13
+ 37. t15 = k == 0
+ 38. t16 = t14 || t15
+ 39. if NOT (t16) goto L4
+ 40. t17 = k + 2
+ 41. k = t17
+ 42. goto L3
+ 43. L4:
+ 44. j = 0
+ 45. L5:
+ 46. t18 = j < 5
+ 47. t19 = q * j
+ 48. t20 = j + t19
+ 49. t21 = 4 * t20
+ 50. t22 = q + t21
+ 51. t23 = t22 == 0
+ 52. t24 = j >= 50
+ 53. t25 = t23 && t24
+ 54. t26 = t18 || t25
+ 55. if NOT (t26) goto L6
+ 56. t27 = q + 1
+ 57. q = t27
+ 58. j = j + 1
+ 59. goto L5
+ 60. L6:
+ 61. j = 0
+ 62. L7:
+ 63. t28 = j >= 50
+ 64. if NOT (t28) goto L8
+ 65. t29 = j + 1
+ 66. j = t29
+ 67. j = j + 1
+ 68. goto L7
+ 69. L8:
+ 70. t30 = q > 50
+ 71. if NOT (t30) goto L9
+ 72. resultado = 1
+ 73. goto L10
+ 74. L9:
+ 75. t31 = q == 9
+ 76. if NOT (t31) goto L11
+ 77. goto L12
+ 78. L11:
+ 79. resultado = 0
+ 80. L12:
+ 81. L10:
+ 82. t32 = q == 1
+ 83. if NOT (t32) goto L13
+ 84. resultado = 3
+ 85. goto L14
+ 86. L13:
+ 87. L14:
+ 88. return resultado

@@ -74,13 +74,13 @@ instruccion: puntoYComa
             | bloque
             | ifor
             | func
-            | if
+            | iif
             ;
 
 puntoYComa : init PYC
             |asignacion PYC
             |proto PYC
-            |return PYC
+            |ireturn PYC
             |callFunc PYC
             |incremento PYC
             |decremento PYC
@@ -91,10 +91,10 @@ iwhile : WHILE PA opal PC (bloque | instruccion) ;//llave representa una instruc
 
 //Aca vamos a declarar los if, lo que tenemos en cuenta es que nosotros no podemos definir un else sin tener un if
 //-------------------------------------------------
-if : IF PA opal PC (bloque | instruccion)  else; 
+iif : IF PA opal PC (bloque | instruccion)  ielse; 
 //Lo que tenemos en cuenta aca es que nosotros podemos anidar, pero solamente puede existir un else por cada if, pero else if los que queramos
-else : ELSE bloque
-    | ELSE if
+ielse : ELSE bloque
+    | ELSE iif
     | 
     ;
 
@@ -108,13 +108,13 @@ opal : exp | oplo | callFunc; //completar para nosotros
 
 exp : term e;
 
-oplo : and or ;
+oplo : iand ior ;
 
-or : ORR and or 
+ior : ORR iand ior 
     |
     ;
 
-and : cmp a ;
+iand : cmp a ;
 
 a : AND cmp a 
    |
@@ -199,7 +199,7 @@ condicionales : '=='
               ;
 
 
-iter : ID exp;
+iiter : ID exp;
 
 //Esta va a ser la parte donde estan las funciones, tanto los prototipos como las funciones en si....
 //------------------------------------
@@ -214,22 +214,25 @@ proto : (INT //Aca declaro los tipos posibles de las variables, no estoy seguro 
 
 //si lo hago de la forma func: proto bloque; no anda, no se porque 
 
-func: (INT //Aca declaro los tipos posibles de las variables, no estoy seguro si el string hace falta, y despues le tengo que preguntar al profe
-    | DOUBLE //si tambien entra los double int y los double float
-    | FLOAT 
-    | BOOLEAN
-    | CHAR | VOID) ID PA (var_func|) PC bloque;
+func
+ : tipo ID PA var_func? PC bloque
+ ;
 
-var_func : (INT //Aca declaro los tipos posibles de las variables, no estoy seguro si el string hace falta, y despues le tengo que preguntar al profe
-        | DOUBLE //si tambien entra los double int y los double float
-        | FLOAT 
-        | BOOLEAN
-        | CHAR) ID (COM (INT //Aca declaro los tipos posibles de las variables, no estoy seguro si el string hace falta, y despues le tengo que preguntar al profe
-                        | DOUBLE //si tambien entra los double int y los double float
-                        | FLOAT 
-                        | BOOLEAN
-                        | CHAR) ID)*
-                        ;
+tipo
+ : INT
+ | DOUBLE
+ | FLOAT
+ | BOOLEAN
+ | CHAR
+ | VOID
+ ;
+var_func
+ : parametro (COM parametro)*
+ ;
+
+parametro
+ : tipo ID
+ ;
 
 
 callFunc : ID PA (var|) PC; //Este lo vamos a usar para la llamada a funciones....
@@ -239,4 +242,4 @@ var : exp (COM exp)*;
 incremento : ID SUMA SUMA;
 decremento : ID RESTA RESTA;
 
-return : RETURN opal;
+ireturn : RETURN opal;

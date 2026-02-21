@@ -18,15 +18,16 @@ def main(argv):
     escucha = Escucha()
     parser.addParseListener(escucha)
     tree = parser.programa()
-    #if escucha.hubo_error:
-    #    print("\n[!] La compilación falló debido a errores semánticos. No se generará código.")
-    #    return
-    #print(tree.toStringTree(recog=parser))
+
+    if escucha.hubo_error:
+        print("\n[!] La compilación falló debido a errores semánticos. No se generará código.")
+        return
+    print(tree.toStringTree(recog=parser))
     caminante = Walker()
     caminante.visitPrograma(tree)
-    Optimizador.iniciarOptimizacion(
-       "DHS/src/main/python/dhs/output/codigo_intermedio.txt", "DHS/src/main/python/dhs/output/codigo_optimizado.txt"
-    )
+    #Optimizador.iniciarOptimizacion(
+     #  "DHS/src/main/python/dhs/output/codigo_intermedio.txt", "DHS/src/main/python/dhs/output/codigo_optimizado.txt"
+    #)
     #Agregar una lista de declaracion
     #Podemos asignar el valor al momento de declarar la variable.
     #implementamos el visitor que genera codigo intermedio 
