@@ -1,13 +1,15 @@
-
-
-
 int calcular_resta(int a, int b){
-    
-    return a-b;
+    return a - b;
 }
 
 void ponerEn0(int x){
     x = 0;
+    int p;
+    p = 0;
+    while (p <= 10 && p==0 || p == 0) {
+        p = p + 2;
+    }
+    p = x + 1;
 }
 
 int calcular_suma(int a , int b , int c) {
