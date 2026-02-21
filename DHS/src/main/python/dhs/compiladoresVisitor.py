@@ -1,6 +1,6 @@
-# Generated from /home/andres/Documents/DHS/DHSBidoneFiesen/DHS/src/main/python/dhs/compiladores.g4 by ANTLR 4.13.1
+# Generated from compiladores.g4 by ANTLR 4.7.2
 from antlr4 import *
-if "." in __name__:
+if __name__ is not None and "." in __name__:
     from .compiladoresParser import compiladoresParser
 else:
     from compiladoresParser import compiladoresParser
@@ -39,13 +39,13 @@ class compiladoresVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by compiladoresParser#if.
-    def visitIf(self, ctx:compiladoresParser.IfContext):
+    # Visit a parse tree produced by compiladoresParser#iif.
+    def visitIif(self, ctx:compiladoresParser.IifContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by compiladoresParser#else.
-    def visitElse(self, ctx:compiladoresParser.ElseContext):
+    # Visit a parse tree produced by compiladoresParser#ielse.
+    def visitIelse(self, ctx:compiladoresParser.IelseContext):
         return self.visitChildren(ctx)
 
 
@@ -69,13 +69,13 @@ class compiladoresVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by compiladoresParser#or.
-    def visitOr(self, ctx:compiladoresParser.OrContext):
+    # Visit a parse tree produced by compiladoresParser#ior.
+    def visitIor(self, ctx:compiladoresParser.IorContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by compiladoresParser#and.
-    def visitAnd(self, ctx:compiladoresParser.AndContext):
+    # Visit a parse tree produced by compiladoresParser#iand.
+    def visitIand(self, ctx:compiladoresParser.IandContext):
         return self.visitChildren(ctx)
 
 
@@ -149,8 +149,8 @@ class compiladoresVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by compiladoresParser#iter.
-    def visitIter(self, ctx:compiladoresParser.IterContext):
+    # Visit a parse tree produced by compiladoresParser#iiter.
+    def visitIiter(self, ctx:compiladoresParser.IiterContext):
         return self.visitChildren(ctx)
 
 
@@ -164,8 +164,18 @@ class compiladoresVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by compiladoresParser#tipo.
+    def visitTipo(self, ctx:compiladoresParser.TipoContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by compiladoresParser#var_func.
     def visitVar_func(self, ctx:compiladoresParser.Var_funcContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by compiladoresParser#parametro.
+    def visitParametro(self, ctx:compiladoresParser.ParametroContext):
         return self.visitChildren(ctx)
 
 
@@ -189,8 +199,8 @@ class compiladoresVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by compiladoresParser#return.
-    def visitReturn(self, ctx:compiladoresParser.ReturnContext):
+    # Visit a parse tree produced by compiladoresParser#ireturn.
+    def visitIreturn(self, ctx:compiladoresParser.IreturnContext):
         return self.visitChildren(ctx)
 
 

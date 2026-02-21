@@ -39,7 +39,7 @@ class Walker (compiladoresVisitor) :
     
     def visitBloque(self, ctx:compiladoresParser.BloqueContext):
         print("  [Entrando a bloque]")
-        return self.visitInstrucciones(ctx.getChild(1))
+        return self.visitChildren(ctx)
 
     def visitTerminal(self, node):
         print(" ==> Token "+ node.getText())
@@ -55,7 +55,7 @@ class Walker (compiladoresVisitor) :
                 self.visit(child)
 
     def visitInstruccion(self, ctx:compiladoresParser.InstruccionContext):
-    
+        print("Entro a instruccion")
         if ctx.puntoYComa():
             return self.visitPuntoYComa(ctx.puntoYComa())
         elif ctx.iwhile():
@@ -66,9 +66,9 @@ class Walker (compiladoresVisitor) :
             return self.visitIfor(ctx.ifor())
         elif ctx.func():
             return self.visitFunc(ctx.func())
-        elif ctx.if_():  
-            return self.visitIf(ctx.if_())
-
+        elif ctx.iif():  
+            return self.visitIif(ctx.iif())
+        return self.visitChildren(ctx)
     
     
     #While anda bien
@@ -104,7 +104,7 @@ class Walker (compiladoresVisitor) :
         print("=-"*20)
 
 
-    def visitIf(self, ctx:compiladoresParser.IfContext):
+    def visitIif(self, ctx:compiladoresParser.IifContext):
         print("=-"*20)
         print("SE ENCONTRO UN IF")
         print("=-"*20)
@@ -132,15 +132,15 @@ class Walker (compiladoresVisitor) :
 
         self.agregarCodigo(f"{etiqueta_else}:")
         
-        if ctx.else_().ELSE():
-            self.visitElse(ctx.else_())
+        if ctx.ielse().ELSE():
+            self.visitIelse(ctx.ielse())
         
  
         self.agregarCodigo(f"{etiqueta_fin}:")
         
         print("=-"*20)
 
-    def visitElse(self, ctx:compiladoresParser.ElseContext):
+    def visitIelse(self, ctx:compiladoresParser.IelseContext):
         print("=-"*20)
         print("SE ENCONTRO UN ELSE")
         print("=-"*20)
@@ -322,23 +322,23 @@ class Walker (compiladoresVisitor) :
     #Parte de las OPLO
     #--------------------------------------------------------------------------------
     def procesarOplo(self, ctx: compiladoresParser.OploContext):
-        izquierda = self.procesarAnd(ctx.and_())
-        return self.procesarOr(ctx.or_(), izquierda)
+        izquierda = self.procesarIand(ctx.iand())
+        return self.procesarOr(ctx.ior(), izquierda)
     
     def procesarOr(self, ctx, izquierda):
-        while ctx is not None and ctx.and_() is not None:
-            derecha = self.procesarAnd(ctx.and_())
+        while ctx is not None and ctx.iand() is not None:
+            derecha = self.procesarIand(ctx.iand())
 
             t = self.generarTemporal()
             self.agregarCodigo(f"{t} = {izquierda} || {derecha}")
             izquierda = t
 
-            ctx = ctx.or_()
+            ctx = ctx.ior()
 
         return izquierda
 
 
-    def procesarAnd(self, ctx: compiladoresParser.AndContext):
+    def procesarIand(self, ctx: compiladoresParser.IandContext):
         izquierda = self.procesarCmp(ctx.cmp())
         return self.procesarA(ctx.a(), izquierda)
 
@@ -419,7 +419,7 @@ class Walker (compiladoresVisitor) :
         self.agregarCodigo(f"{var} = {var} - 1")
         print("=-"*20)
 
-    def visitReturn(self, ctx:compiladoresParser.ReturnContext):
+    def visitIreturn(self, ctx:compiladoresParser.IreturnContext):
         print("=-"*20)
         print("SE ENCONTRO UN RETURN")
         print("=-"*20)
@@ -516,3 +516,8 @@ class Walker (compiladoresVisitor) :
             print(f"Código de 3 direcciones guardado en: {archivo}")
         except Exception as e:
             print(f"Error al guardar el archivo: {e}")
+
+
+    def visitPuntoYComa(self, ctx:compiladoresParser.PuntoYComaContext):
+    # Visitamos el hijo (que puede ser asignacion, init, etc.)
+        return self.visitChildren(ctx)
