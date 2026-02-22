@@ -1,0 +1,27 @@
+  1. function suma():
+  2. pop b
+  3. pop a
+  4. t1 = a + b
+  5. return t1
+  6. function main():
+  7. y = 20
+  8. resultado = 0
+  9. t2 = 1 > 2
+ 10. if NOT (t2) goto L2
+ 11. x = 20
+ 12. goto L2
+ 13. L2:
+ 14. i = 0
+ 15. L3:
+ 16. t4 = i < 10
+ 17. if NOT (t4) goto L4
+ 18. t5 = x + 1
+ 19. x = t5
+ 20. i = i + 1
+ 21. goto L3
+ 22. L4:
+ 23. push x
+ 24. push y
+ 25. t6 = call suma
+ 26. resultado = t6
+ 27. return resultado
