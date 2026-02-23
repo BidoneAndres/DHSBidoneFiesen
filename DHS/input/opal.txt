@@ -3,15 +3,19 @@ int suma (int a, int b){
 }
 
 int main(){
-    int x, y, i, resultado;
+    int x, y, i, resultado, z;
     x = 10;
     y = 20;
+    z = x * 2 + y / 4 - 3
     resultado = 0;
     if(1 > 2){
         x = x * 2;
     }
     for(i = 0 ; i < 10 ; i ++) {
         x = x + 1;
+    }
+    while( z > 30 ){
+        y = y + 10;
     }
     resultado = suma(x, y);
     return resultado;

@@ -6,25 +6,37 @@
   6. function main():
   7. x = 10
   8. y = 20
-  9. resultado = 0
- 10. t2 = 1 > 2
- 11. if NOT (t2) goto L1
- 12. t3 = x * 2
- 13. x = t3
- 14. goto L2
- 15. L1:
- 16. L2:
- 17. i = 0
- 18. L3:
- 19. t4 = i < 10
- 20. if NOT (t4) goto L4
- 21. t5 = x + 1
- 22. x = t5
- 23. i = i + 1
- 24. goto L3
- 25. L4:
- 26. push x
- 27. push y
- 28. t6 = call suma
- 29. resultado = t6
- 30. return resultado
+  9. t2 = x * 2
+ 10. t3 = y / 4
+ 11. t4 = t2 + t3
+ 12. t5 = t4 - 3
+ 13. z = t5
+ 14. resultado = 0
+ 15. t6 = 1 > 2
+ 16. if NOT (t6) goto L1
+ 17. t7 = x * 2
+ 18. x = t7
+ 19. goto L2
+ 20. L1:
+ 21. L2:
+ 22. i = 0
+ 23. L3:
+ 24. t8 = i < 10
+ 25. if NOT (t8) goto L4
+ 26. t9 = x + 1
+ 27. x = t9
+ 28. i = i + 1
+ 29. goto L3
+ 30. L4:
+ 31. L5:
+ 32. t10 = z > 30
+ 33. if NOT (t10) goto L6
+ 34. t11 = y + 10
+ 35. y = t11
+ 36. goto L5
+ 37. L6:
+ 38. push x
+ 39. push y
+ 40. t12 = call suma
+ 41. resultado = t12
+ 42. return resultado

@@ -4,24 +4,28 @@
   4. t1 = a + b
   5. return t1
   6. function main():
-  7. y = 20
-  8. resultado = 0
-  9. t2 = 1 > 2
- 10. if NOT (t2) goto L2
- 11. x = 20
- 12. goto L2
- 13. L2:
- 14. i = 0
- 15. L3:
- 16. t4 = i < 10
- 17. if NOT (t4) goto L4
- 18. t5 = x + 1
- 19. x = t5
- 20. i = i + 1
- 21. goto L3
- 22. L4:
- 23. push x
- 24. push y
- 25. t6 = call suma
- 26. resultado = t6
- 27. return resultado
+  7. x = 10
+  8. y = 20
+  9. z = 22
+ 10. resultado = 0
+ 11. if NOT (0) goto L2
+ 12. L2:
+ 13. i = 0
+ 14. L3:
+ 15. t8 = i < 10
+ 16. if NOT (t8) goto L5
+ 17. t9 = x + 1
+ 18. x = t9
+ 19. goto L3
+ 20. L5:
+ 21. t10 = z > 30
+ 22. if NOT (t10) goto L6
+ 23. t11 = y + 10
+ 24. y = t11
+ 25. goto L5
+ 26. L6:
+ 27. push x
+ 28. push y
+ 29. t12 = call suma
+ 30. resultado = t12
+ 31. return resultado
