@@ -49,7 +49,7 @@ class Optimizador:
             if not instr:
                 continue
             
-            # CONTROL DE FLUJO: Resetear contexto en funciones o etiquetas
+            # CONTROL DE FLUJO: Resetear contexto en funciones o etiquetas, para que no terminen con valores de otras partes del código
             if Constante.nombreFuncion.match(instr) or Constante.etiqueta.match(instr):
                 print(f"Entrando a función/etiqueta: {instr}, limpiando contexto.")
                 tabla.clear()
@@ -57,7 +57,7 @@ class Optimizador:
                 codigo.append(instr)
                 continue
             
-            # CONTROL DE FLUJO: Manejo de saltos (GOTO)
+            # CONTROL DE FLUJO: Manejo de saltos (GOTO), si es un bucle que regresa a una etiqueta ya vista, limpiamos el contexto para evitar propagaciones erróneas
             if instr.startswith("goto"):
                 print(f" Salto Encontrado: {instr}")
                 destino = instr.split()[1]
@@ -67,7 +67,7 @@ class Optimizador:
                 codigo.append(instr)
                 continue
             
-            # OPTIMIZACIÓN DE PUSH
+            # OPTIMIZACIÓN DE PUSH (Propagación de constantes dentro de push)
             if instr.startswith("push"):
                 val_push = instr.replace("push", "").strip()
                 for v, val in tabla.items():
@@ -80,10 +80,8 @@ class Optimizador:
                 codigo.append(nueva_push)
                 continue
 
-            # OPTIMIZACIÓN DE CALL
+            # OPTIMIZACIÓN DE CALL 
             if "call" in instr:
-                for v, val in tabla.items():
-                    instr = re.sub(rf'\b{v}\b', str(val), instr)
                 codigo.append(instr)
                 continue
 
@@ -129,8 +127,8 @@ class Optimizador:
                         continue
 
                 # 5. ACTUALIZAR TABLA DE CONSTANTES
-                if re.fullmatch(r'[+-]?\d+(\.\d+)?', exp):
-                    tabla[var] = exp
+                if re.fullmatch(r'[+-]?\d+(\.\d+)?', exp): # Solo almacenamos constantes numéricas, no expresiones complejas
+                    tabla[var] = exp 
                 else:
                     tabla.pop(var, None)
 
@@ -183,7 +181,8 @@ class Optimizador:
         print("\n--- Ejecutando Limpieza de Código Muerto ---")
         siempre_vivas = set()
         for linea in lineas:
-            if any(keyword in linea for keyword in ["push", "return", "if", "call"]):
+            # Consideramos que cualquier variable usada en push, return, if o call es siempre viva, ya que afecta el flujo o resultado del programa
+            if any(keyword in linea for keyword in ["push", "return", "if", "call", "<", ">", "==", "!="]): 
                 encontradas = Constante.usoVariable.findall(linea)
                 for v in encontradas:
                     siempre_vivas.add(v)
@@ -194,25 +193,25 @@ class Optimizador:
         # Análisis reverso (de abajo hacia arriba)
         for linea in reversed(lineas):
             instr = linea.strip()
-            if "function" in instr or ":" in instr:
-                variables_vivas.update(siempre_vivas)
-                codigo_limpio.append(linea)
+            if "function" in instr or ":" in instr: # Consideramos que en funciones o etiquetas, todas las variables son vivas por seguridad, para evitar eliminar algo que podría ser usado en otro bloque
+                variables_vivas.update(siempre_vivas) # En cada función o etiqueta, reseteamos el contexto de variables vivas para evitar eliminar algo que podría ser usado en otro bloque
+                codigo_limpio.append(linea) # Mantenemos la función o etiqueta sin cambios, pero reseteamos el contexto de variables vivas para esa sección del código
                 continue
 
             m = Constante.asignacion.match(instr)
             if m:
                 var = m.group(1).strip()
                 exp = m.group(2).strip()
-                if var not in variables_vivas and "call" not in exp:
+                if var not in variables_vivas and "call" not in exp: # Si la variable asignada no es viva y no es parte de una llamada (que podría tener efectos secundarios), la eliminamos
                     print(f" [ELIMINADO] Asignación muerta (nadie la usa después): {instr}")
                     continue
                 
-                variables_vivas.discard(var)
-                for v in Constante.usoVariable.findall(exp):
+                variables_vivas.discard(var) # La variable que se asigna ya no es viva después de esta línea, a menos que se vuelva a usar más adelante
+                for v in Constante.usoVariable.findall(exp): # Cualquier variable usada en la expresión se vuelve viva
                     variables_vivas.add(v)
-                codigo_limpio.append(linea)
+                codigo_limpio.append(linea) # Mantenemos la línea, ya que es necesaria para el programa, pero actualizamos el conjunto de variables vivas para las líneas anteriores
             else:
-                for v in Constante.usoVariable.findall(instr):
+                for v in Constante.usoVariable.findall(instr): # Cualquier variable usada en esta línea se vuelve viva
                     variables_vivas.add(v)
                 codigo_limpio.append(linea)
         return list(reversed(codigo_limpio))
@@ -227,16 +226,16 @@ class Optimizador:
         for i in range(len(lineas) - 1):
             act = lineas[i].strip()
             sig = lineas[i+1].strip()
-            m_act = re.match(r'^(\w+):$', act)
+            m_act = re.match(r'^(\w+):$', act) # Revisamos si las líneas son etiquetas
             m_sig = re.match(r'^(\w+):$', sig)
-            if m_act and m_sig:
+            if m_act and m_sig:# Colapsamos las estiquetas si son consecutivas
                 orig = m_act.group(1)
                 dest = m_sig.group(1)
-                mapa_alias[orig] = mapa_alias.get(dest, dest)
+                mapa_alias[orig] = mapa_alias.get(dest, dest) # Si la etiqueta destino ya es un alias de otra, apuntamos al destino final para evitar cadenas de alias
                 print(f" Colapsando: {orig} -> {mapa_alias[orig]}")
 
         lineas_intermedias = []
-        for l in lineas:
+        for l in lineas: # Reemplazamos los saltos a etiquetas colapsadas por su destino final
             nueva_l = l
             for vieja, nuevo in mapa_alias.items():
                 nueva_l = re.sub(rf'\bgoto\s+{vieja}\b', f"goto {nuevo}", nueva_l)
@@ -248,10 +247,10 @@ class Optimizador:
         texto_final = "\n".join(lineas_intermedias)
         lineas_finales = []
         for l in lineas_intermedias:
-            m_e = re.match(r'^(\w+):$', l.strip())
+            m_e = re.match(r'^(\w+):$', l.strip()) # Buscamos etiquetas huérfanas, es decir, aquellas que no son destino de ningún salto después de la limpieza
             if m_e:
                 etiqueta = m_e.group(1)
-                if re.search(rf'goto\s+{etiqueta}\b', texto_final):
+                if re.search(rf'goto\s+{etiqueta}\b', texto_final): # Si la etiqueta sigue siendo referenciada por algún salto, la mantenemos
                     lineas_finales.append(l)
                 else:
                     print(f" Borrando etiqueta huérfana: {etiqueta}")
@@ -267,13 +266,13 @@ class Optimizador:
         while i < len(lineas):
             instr = lineas[i].strip()
             resultado.append(lineas[i])
-            m_goto = re.match(r'^goto\s+(\w+)', instr)
-            m_if_siempre = re.match(r'^if NOT\s*\(0\)\s*goto\s+(\w+)', instr)
-            target_label = None
-            if m_goto: target_label = m_goto.group(1)
-            elif m_if_siempre: target_label = m_if_siempre.group(1)
+            m_goto = re.match(r'^goto\s+(\w+)', instr) # Detectamos saltos incondicionales
+            m_if_siempre = re.match(r'^if NOT\s*\(0\)\s*goto\s+(\w+)', instr) # Detectamos condicionales que siempre saltan (if NOT (0) goto etiqueta)
+            target_label = None # Si encontramos un salto, buscamos la etiqueta destino y eliminamos todo el bloque intermedio hasta esa etiqueta, siempre y cuando no encontremos otra etiqueta en el camino (lo que indicaría que el bloque es alcanzable desde otro punto del programa)
+            if m_goto: target_label = m_goto.group(1) # Si es un salto incondicional, la etiqueta destino es el objetivo del salto
+            elif m_if_siempre: target_label = m_if_siempre.group(1) # Si es un if NOT (0) goto, la etiqueta destino también es el objetivo del salto, ya que la condición siempre se evalúa como verdadera, lo que hace que el salto siempre ocurra
 
-            if target_label:
+            if target_label: # Si encontramos un salto, buscamos la etiqueta destino y eliminamos todo el bloque intermedio hasta esa etiqueta, siempre y cuando no encontremos otra etiqueta en el camino (lo que indicaría que el bloque es alcanzable desde otro punto del programa)
                 j = i + 1
                 bloque_borrado = []
                 encontrado = False

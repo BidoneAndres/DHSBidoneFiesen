@@ -1,5 +1,8 @@
 int suma (int a, int b){
-    return a + b;
+    int e, p;
+    e = 10;
+    p = 15;
+    return a + b + e + p;
 }
 
 int main(){
@@ -10,13 +13,14 @@ int main(){
     resultado = 0;
     if(1 > 2){
         x = x * 2;
+        y = 0;
     }
     for(i = 0 ; i < 10 ; i ++) {
         x = x + 1;
     }
-    while( z > 30 ){
+    while( z < 30 ){
         y = y + 10;
     }
     resultado = suma(x, y);
-    return resultado;
+    return resultado + 5;
 }
