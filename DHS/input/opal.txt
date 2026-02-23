@@ -11,7 +11,7 @@ int main(){
     y = 20;
     z = x * 2 + y / 4 - 3
     resultado = 0;
-    if(1 > 2){
+    if(1 < 2){
         x = x * 2;
         y = 0;
     }
@@ -20,7 +20,10 @@ int main(){
     }
     while( z < 30 ){
         y = y + 10;
+        z = z + 1;
     }
     resultado = suma(x, y);
+    int pepe;
+    pepe = 0;
     return resultado + 5;
 }
